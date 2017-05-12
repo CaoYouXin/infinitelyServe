@@ -25,15 +25,12 @@ public class HttpFileHandler implements HttpRequestHandler {
 
     @Override
     public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext) throws HttpException, IOException {
+
         if (HttpUtils.isInvalidMethod(httpRequest)) {
             throw new MethodNotSupportedException(HttpUtils.getMethod(httpRequest) + " method not supported");
         }
 
-        if (httpRequest instanceof HttpEntityEnclosingRequest) {
-            HttpEntity entity = ((HttpEntityEnclosingRequest) httpRequest).getEntity();
-            byte[] entityContent = EntityUtils.toByteArray(entity);
-            System.out.println("Incoming entity content (bytes): " + entityContent.length);
-        }
+        System.out.println("Incoming entity content (bytes): " + HttpUtils.getBodyAsBytes(httpRequest).length);
 
         File file = new File(this.docRoot, HttpUtils.getDecodedUrl(httpRequest));
         this.processFile(httpResponse, httpContext, file);

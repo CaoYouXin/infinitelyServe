@@ -1,12 +1,15 @@
 package tech.caols.infinitely.server;
 
+import org.apache.http.Consts;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
+import org.apache.http.util.EntityUtils;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public class HttpUtils {
 
@@ -36,6 +39,16 @@ public class HttpUtils {
         }
     }
 
+    public static String getSimpleDecodedUrl(HttpRequest httpRequest) {
+        String decodedUrl = getDecodedUrl(httpRequest);
+        int indexOf = decodedUrl.indexOf('?');
+        if (-1 == indexOf) {
+            return decodedUrl;
+        } else {
+            return decodedUrl.substring(0, indexOf);
+        }
+    }
+
     public static Map<String, String> getParameterMap(HttpRequest httpRequest) {
         String decodedUrl = getDecodedUrl(httpRequest);
         int indexOf = decodedUrl.indexOf('?');
@@ -62,6 +75,47 @@ public class HttpUtils {
                         str.substring(indexOfEqual + 1));
             }
         }
+    }
+
+    public static List<String> getListParameter(String param) {
+        List<String> ret = new ArrayList<>();
+        int indexOf = param.indexOf(',');
+        putParameter(param, ret, indexOf);
+        return ret;
+    }
+
+    private static void putParameter(String str, List<String> list, int indexOf) {
+        if (-1 == indexOf) {
+            list.add(str);
+        } else {
+            list.add(str.substring(0, indexOf));
+            String next = str.substring(indexOf + 1);
+            putParameter(next, list, next.indexOf(','));
+        }
+    }
+
+    public static String getBodyAsString(HttpRequest httpRequest) {
+        if (httpRequest instanceof HttpEntityEnclosingRequest) {
+            HttpEntity entity = ((HttpEntityEnclosingRequest) httpRequest).getEntity();
+            try {
+                return EntityUtils.toString(entity, Consts.UTF_8);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return "";
+    }
+
+    public static byte[] getBodyAsBytes(HttpRequest httpRequest) {
+        if (httpRequest instanceof HttpEntityEnclosingRequest) {
+            HttpEntity entity = ((HttpEntityEnclosingRequest) httpRequest).getEntity();
+            try {
+                return EntityUtils.toByteArray(entity);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return new byte[0];
     }
 
 }
