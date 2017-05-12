@@ -8,12 +8,11 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.util.EntityUtils;
+import tech.caols.infinitely.server.HttpUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.nio.charset.Charset;
-import java.util.Locale;
 
 public class HttpFileHandler implements HttpRequestHandler {
 
@@ -26,11 +25,9 @@ public class HttpFileHandler implements HttpRequestHandler {
 
     @Override
     public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext) throws HttpException, IOException {
-        String method = httpRequest.getRequestLine().getMethod().toUpperCase(Locale.ROOT);
-        if (!method.equals("GET") && !method.equals("HEAD") && !method.equals("POST")) {
-            throw new MethodNotSupportedException(method + " method not supported");
+        if (HttpUtils.isInvalidMethod(httpRequest)) {
+            throw new MethodNotSupportedException(HttpUtils.getMethod(httpRequest) + " method not supported");
         }
-        String target = httpRequest.getRequestLine().getUri();
 
         if (httpRequest instanceof HttpEntityEnclosingRequest) {
             HttpEntity entity = ((HttpEntityEnclosingRequest) httpRequest).getEntity();
@@ -38,12 +35,11 @@ public class HttpFileHandler implements HttpRequestHandler {
             System.out.println("Incoming entity content (bytes): " + entityContent.length);
         }
 
-        String decode = URLDecoder.decode(target, "UTF-8");
-        final File file = new File(this.docRoot, decode);
+        File file = new File(this.docRoot, HttpUtils.getDecodedUrl(httpRequest));
         this.processFile(httpResponse, httpContext, file);
     }
 
-    private void processFile(HttpResponse httpResponse, HttpContext httpContext, File file) {
+    private void processFile(HttpResponse httpResponse, HttpContext httpContext, final File file) {
 
         if (!file.exists()) {
 
@@ -57,7 +53,7 @@ public class HttpFileHandler implements HttpRequestHandler {
 
         } else if (file.isDirectory()) {
 
-            final File indexFile = new File(file.getAbsolutePath(), "index.html");
+            File indexFile = new File(file.getAbsolutePath(), "index.html");
             this.processFile(httpResponse, httpContext, indexFile);
 
         } else if (!file.canRead()) {

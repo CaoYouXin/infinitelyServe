@@ -3,14 +3,12 @@ package tech.caols.infinitely.server.handlers;
 import org.apache.http.*;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
-import org.apache.http.util.EntityUtils;
 import tech.caols.infinitely.config.ConfigUtil;
 import tech.caols.infinitely.config.ShutDownConfig;
+import tech.caols.infinitely.server.HttpUtils;
 import tech.caols.infinitely.server.SimpleServer;
 
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.util.Locale;
 
 public class ShutDownHandler implements HttpRequestHandler {
 
@@ -22,30 +20,24 @@ public class ShutDownHandler implements HttpRequestHandler {
 
     @Override
     public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext) throws HttpException, IOException {
-        String method = httpRequest.getRequestLine().getMethod().toUpperCase(Locale.ROOT);
-        if (!method.equals("GET") && !method.equals("HEAD") && !method.equals("POST")) {
-            throw new MethodNotSupportedException(method + " method not supported");
-        }
-        String target = httpRequest.getRequestLine().getUri();
 
-        if (httpRequest instanceof HttpEntityEnclosingRequest) {
-            HttpEntity entity = ((HttpEntityEnclosingRequest) httpRequest).getEntity();
-            byte[] entityContent = EntityUtils.toByteArray(entity);
-            System.out.println("Incoming entity content (bytes): " + entityContent.length);
+        if (!HttpUtils.isGet(httpRequest)) {
+            throw new MethodNotSupportedException(HttpUtils.getMethod(httpRequest) + " method not supported");
         }
 
-        String decode = URLDecoder.decode(target, "UTF-8");
-        System.out.println("shutdown : " + decode);
-        int indexOf = decode.indexOf("?token=");
+        String decodedUrl = HttpUtils.getDecodedUrl(httpRequest);
+        int indexOf = decodedUrl.indexOf("?token=");
         if (-1 != indexOf) {
-            String token = decode.substring(indexOf + "?token=".length());
+            String token = decodedUrl.substring(indexOf + "?token=".length());
 
             ConfigUtil util = new ConfigUtil();
-            ShutDownConfig config = util.getConfig(util.getRootFileName() + ".log", ShutDownConfig.class);
+            ShutDownConfig config = util.getConfigFromFile(util.getRootFileName() + ".log", ShutDownConfig.class);
 
             if (token.equals(config.getToken())) {
                 this.server.shutdown();
             }
+        } else {
+            throw new RuntimeException("To shutdown, one must follow the correct format of url [/shutdown.cmd?token=TOKEN].");
         }
     }
 
