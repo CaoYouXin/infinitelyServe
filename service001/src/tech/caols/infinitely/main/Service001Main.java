@@ -1,6 +1,5 @@
 package tech.caols.infinitely.main;
 
-import org.apache.http.protocol.*;
 import tech.caols.infinitely.config.ConfigUtil;
 import tech.caols.infinitely.config.ShutDownConfig;
 import tech.caols.infinitely.config.SimpleConfig;
@@ -16,7 +15,7 @@ public class Service001Main {
         switch (args[0]) {
             case "start":
 
-                final SimpleConfig config = util.getConfig(util.getRootFileName() + ".json", SimpleConfig.class);
+                final SimpleConfig config = util.getConfigFromFile(util.getRootFileName() + ".json", SimpleConfig.class);
                 SimpleServer simpleServer = new SimpleServer(config.getPort(), config.getDocRoot())
                         .registerHandler("/user/add", new UserAddHandler());
                 simpleServer.start(() -> {
@@ -27,7 +26,7 @@ public class Service001Main {
                 break;
             case "stop":
 
-                ShutDownConfig shutDownConfig = util.getConfig(util.getRootFileName() + ".log", ShutDownConfig.class);
+                ShutDownConfig shutDownConfig = util.getConfigFromFile(util.getRootFileName() + ".log", ShutDownConfig.class);
                 new Stopper(shutDownConfig.getHostName(), shutDownConfig.getHostPort(), shutDownConfig.getToken()).call();
 
                 break;
