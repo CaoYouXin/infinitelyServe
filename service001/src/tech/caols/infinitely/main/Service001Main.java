@@ -6,6 +6,7 @@ import tech.caols.infinitely.config.SimpleConfig;
 import tech.caols.infinitely.handlers.UserAddHandler;
 import tech.caols.infinitely.server.SimpleServer;
 import tech.caols.infinitely.server.Stopper;
+import tech.caols.infinitely.server.handlers.ProxyHandler;
 
 public class Service001Main {
 
@@ -17,7 +18,7 @@ public class Service001Main {
 
                 final SimpleConfig config = util.getConfigFromFile(util.getRootFileName() + ".json", SimpleConfig.class);
                 SimpleServer simpleServer = new SimpleServer(config.getPort(), config.getDocRoot())
-                        .registerHandler("/user/add", new UserAddHandler());
+                        .registerHandler("/user/add", new ProxyHandler(new UserAddHandler()));
                 simpleServer.start(() -> {
                     System.out.println("service 001 started.");
                     System.out.println(config);
