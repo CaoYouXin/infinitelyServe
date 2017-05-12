@@ -9,6 +9,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.StringJoiner;
 
 public class ConfigUtil {
 
@@ -18,14 +22,17 @@ public class ConfigUtil {
     private String rootFileName;
 
     public ConfigUtil() {
-        String bpoc = this.basePathOfClass.substring(0,
-                this.basePathOfClass.lastIndexOf(IOUtils.DIR_SEPARATOR) + 1);
-        this.rootFileName = this.basePathOfClass.substring(bpoc.length(),
-                this.basePathOfClass.lastIndexOf('.'));
-        this.basePathOfClass = bpoc;
+        int lastIndexOf = this.basePathOfClass.lastIndexOf(IOUtils.DIR_SEPARATOR);
+
+        if (lastIndexOf != this.basePathOfClass.length() - 1) {
+            String bpoc = this.basePathOfClass.substring(0, lastIndexOf + 1);
+            this.rootFileName = this.basePathOfClass.substring(bpoc.length(),
+                    this.basePathOfClass.lastIndexOf('.'));
+            this.basePathOfClass = bpoc;
+        }
     }
 
-    public <C> C getConfig(String fileName, Class<C> clazz) {
+    public <C> C getConfigFromFile(String fileName, Class<C> clazz) {
         try {
             return new ObjectMapper().readValue(this.getFileWithUtil(fileName), clazz);
         } catch (IOException e) {
