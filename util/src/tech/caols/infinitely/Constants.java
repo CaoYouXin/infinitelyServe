@@ -1,6 +1,6 @@
 package tech.caols.infinitely;
 
-public class Constances {
+public class Constants {
 
     /**
      * processor type

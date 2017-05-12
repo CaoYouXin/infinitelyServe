@@ -8,7 +8,7 @@ import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.protocol.*;
 import org.apache.http.util.EntityUtils;
 import tech.caols.infinitely.CallBack;
-import tech.caols.infinitely.Constances;
+import tech.caols.infinitely.Constants;
 import tech.caols.infinitely.SimpleUtils;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class Register implements CallBack {
 
     public Register(HttpHost host, String type, String url, int port) throws WrongRegisterTypeException {
 
-        if (!type.equals(Constances.PRE_PROCESSOR) && !type.equals(Constances.POST_PROCESSOR)) {
+        if (!type.equals(Constants.PRE_PROCESSOR) && !type.equals(Constants.POST_PROCESSOR)) {
             throw new WrongRegisterTypeException("wrong type : " + type);
         }
 
