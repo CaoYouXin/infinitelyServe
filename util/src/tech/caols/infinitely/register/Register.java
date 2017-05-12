@@ -8,6 +8,7 @@ import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.protocol.*;
 import org.apache.http.util.EntityUtils;
 import tech.caols.infinitely.CallBack;
+import tech.caols.infinitely.Constances;
 import tech.caols.infinitely.SimpleUtils;
 
 import java.io.IOException;
@@ -15,17 +16,16 @@ import java.net.Socket;
 
 public class Register implements CallBack {
 
-    public static final String PRE_PROCESSOR = "pre";
-    public static final String POST_PROCESSOR = "post";
-
     private HttpHost host;
     private String type;
     private String url;
     private int port;
+    private String parameters;
+    private Boolean needBody;
 
     public Register(HttpHost host, String type, String url, int port) throws WrongRegisterTypeException {
 
-        if (!type.equals(PRE_PROCESSOR) && !type.equals(POST_PROCESSOR)) {
+        if (!type.equals(Constances.PRE_PROCESSOR) && !type.equals(Constances.POST_PROCESSOR)) {
             throw new WrongRegisterTypeException("wrong type : " + type);
         }
 
@@ -33,6 +33,16 @@ public class Register implements CallBack {
         this.url = url;
         this.host = host;
         this.port = port;
+    }
+
+    public Register setParamters(String parameters) {
+        this.parameters = parameters;
+        return this;
+    }
+
+    public Register setNeedBody(Boolean needBody) {
+        this.needBody = needBody;
+        return this;
     }
 
     @Override
@@ -57,10 +67,19 @@ public class Register implements CallBack {
                 Socket socket = new Socket(this.host.getHostName(), this.host.getPort());
                 conn.bind(socket);
             }
-            BasicHttpRequest request = new BasicHttpRequest("GET",
-                    "/" + this.type + ".cfg?loc="
-                            + SimpleUtils.getLocalHostLANAddress().getHostAddress()
-                            + ";port=" + this.port + ";url=" + this.url);
+            String uri = "/" + this.type + ".cfg?loc="
+                    + SimpleUtils.getLocalHostLANAddress().getHostAddress()
+                    + ";port=" + this.port + ";url=" + this.url;
+
+            if (null != this.parameters) {
+                uri += ";parameters=" + this.parameters;
+            }
+
+            if (null != this.needBody) {
+                uri += ";needBody=" + Boolean.toString(this.needBody);
+            }
+
+            BasicHttpRequest request = new BasicHttpRequest("GET", uri);
             System.out.println(">> Request URI: " + request.getRequestLine().getUri());
 
             httpExecutor.preProcess(request, httpproc, coreContext);
