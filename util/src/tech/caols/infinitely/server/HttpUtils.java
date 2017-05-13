@@ -57,17 +57,17 @@ public class HttpUtils {
         }
 
         Map<String, String> ret = new HashMap<>();
-        putParameter(decodedUrl.substring(indexOf + 1), ret);
+        putParameter(decodedUrl.substring(indexOf + 1), ret, ";");
         return ret;
     }
 
-    private static void putParameter(String str, Map<String, String> map) {
-        int indexOf = str.indexOf(';'), indexOfEqual = str.indexOf('=');
+    public static void putParameter(String str, Map<String, String> map, String delimiter) {
+        int indexOf = str.indexOf(delimiter), indexOfEqual = str.indexOf('=');
         if (-1 != indexOf) {
             if (-1 != indexOfEqual) {
                 map.put(str.substring(0, indexOfEqual),
                         str.substring(indexOfEqual + 1, indexOf));
-                putParameter(str.substring(indexOf + 1), map);
+                putParameter(str.substring(indexOf + delimiter.length()), map, delimiter);
             }
         } else {
             if (-1 != indexOfEqual) {
@@ -94,9 +94,16 @@ public class HttpUtils {
         }
     }
 
-    public static String getBodyAsString(HttpRequest httpRequest) {
+    public static HttpEntity getBody(HttpRequest httpRequest) {
         if (httpRequest instanceof HttpEntityEnclosingRequest) {
-            HttpEntity entity = ((HttpEntityEnclosingRequest) httpRequest).getEntity();
+            return ((HttpEntityEnclosingRequest) httpRequest).getEntity();
+        }
+        return null;
+    }
+
+    public static String getBodyAsString(HttpRequest httpRequest) {
+        HttpEntity entity = getBody(httpRequest);
+        if (null != entity) {
             try {
                 return EntityUtils.toString(entity, Consts.UTF_8);
             } catch (IOException e) {
@@ -107,8 +114,8 @@ public class HttpUtils {
     }
 
     public static byte[] getBodyAsBytes(HttpRequest httpRequest) {
-        if (httpRequest instanceof HttpEntityEnclosingRequest) {
-            HttpEntity entity = ((HttpEntityEnclosingRequest) httpRequest).getEntity();
+        HttpEntity entity = getBody(httpRequest);
+        if (null != entity) {
             try {
                 return EntityUtils.toByteArray(entity);
             } catch (IOException e) {

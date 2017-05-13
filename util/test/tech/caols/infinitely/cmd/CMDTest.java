@@ -9,12 +9,13 @@ public class CMDTest {
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
-        String dir = "/Users/cls/Dev/Git/personal/infinitely/serve/testout/";
-        String fileName = "service001_jar";
-        run("unzip -qo " + fileName + ".zip -d " + dir, true);
-        run("java -jar " + dir + fileName + "/"
-                + fileName.replace('_', '.') + " start", false);
+//        String dir = "/Users/cls/Dev/Git/personal/infinitely/serve/testout/";
+//        String fileName = "service001_jar";
+//        run("unzip -qo " + fileName + ".zip -d " + dir, true);
+//        run("java -jar " + dir + fileName + "/"
+//                + fileName.replace('_', '.') + " start", false);
 
+        run("ls ./out/", true);
     }
 
     public static void run(String cmd, boolean wait) throws IOException, InterruptedException {
