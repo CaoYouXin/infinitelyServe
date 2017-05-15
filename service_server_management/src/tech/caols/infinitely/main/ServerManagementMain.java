@@ -26,7 +26,7 @@ public class ServerManagementMain {
                         )).registerHandler("/server/config", new ProxyHandler(
                                 new ConfigServerHandler(config.getServerRoot())
                         )).registerHandler("/server/manipulation", new ProxyHandler(
-                                new ServerManipulationHandler(config.getServerRoot())
+                                new ServerManipulationHandler(config.getServerRoot(), config.getUploadRoot())
                         ))
                         .registerHandler("/upload", new UploadHandler(config.getUploadRoot()));
                 simpleServer.start(() -> {
@@ -37,9 +37,12 @@ public class ServerManagementMain {
                 break;
             case "stop":
 
-                ShutDownConfig shutDownConfig = util.getConfigFromFile(util.getRootFileName() + ".log", ShutDownConfig.class);
+                String fileName = util.getRootFileName() + ".log";
+
+                ShutDownConfig shutDownConfig = util.getConfigFromFile(fileName, ShutDownConfig.class);
                 new Stopper(shutDownConfig.getHostName(), shutDownConfig.getHostPort(), shutDownConfig.getToken()).call();
 
+                util.eraseConfigFile(fileName);
                 break;
             default:
                 break;

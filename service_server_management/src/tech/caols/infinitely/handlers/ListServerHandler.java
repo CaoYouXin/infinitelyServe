@@ -55,7 +55,7 @@ public class ListServerHandler implements HttpRequestHandler {
             );
             server.setName(serverName);
             server.setDeployed(false);
-            server.setStatus(Server.NOT_RUNNING);
+            server.setStatus(Server.ZIP);
             server.setType(getType(serverName));
 
             ret.add(server);
@@ -77,7 +77,7 @@ public class ListServerHandler implements HttpRequestHandler {
             server.setType(getType(deployedServer));
             server.setStatus(runningServers.stream()
                     .anyMatch(runningServer -> runningServer.contains(deployedServer))
-                    ? Server.RUNNING : Server.NOT_RUNNING);
+                    ? Server.RUNNING : Server.STOP);
 
             ret.add(server);
         });
@@ -103,7 +103,8 @@ public class ListServerHandler implements HttpRequestHandler {
         public static final String SERVICE = "service";
 
         public static final String RUNNING = "running";
-        public static final String NOT_RUNNING = "not running";
+        public static final String STOP = "stop";
+        public static final String ZIP = "zip";
 
         private String type;
         private String name;

@@ -10,15 +10,18 @@ import tech.caols.infinitely.SimpleUtils;
 import tech.caols.infinitely.server.HttpUtils;
 import tech.caols.infinitely.server.JsonRes;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
 public class ServerManipulationHandler implements HttpRequestHandler {
 
     private final String serverRoot;
+    private final String uploadRoot;
 
-    public ServerManipulationHandler(String serverRoot) {
+    public ServerManipulationHandler(String serverRoot, String uploadRoot) {
         this.serverRoot = serverRoot;
+        this.uploadRoot = uploadRoot;
     }
 
     @Override
@@ -34,7 +37,7 @@ public class ServerManipulationHandler implements HttpRequestHandler {
         }
 
         String serverFileName = at.substring(0, at.lastIndexOf("_jar"));
-        String target = this.serverRoot + at + serverFileName + ".jar";
+        String target = this.serverRoot + at + "/" + serverFileName + ".jar";
         switch (aDo) {
             case "start":
                 SimpleUtils.run("java -jar " + target + " start", false);
@@ -45,6 +48,11 @@ public class ServerManipulationHandler implements HttpRequestHandler {
             case "restart":
                 SimpleUtils.run("java -jar " + target + " stop", true);
                 SimpleUtils.run("java -jar " + target + " start", false);
+                break;
+            case "deploy":
+                SimpleUtils.run("unzip -qo " + this.uploadRoot + at + ".zip -d " + this.serverRoot, true);
+                File file = new File(this.uploadRoot, at + ".zip");
+                file.deleteOnExit();
                 break;
             default:
                 throw new RuntimeException("can not understand request " + aDo);

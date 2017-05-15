@@ -62,7 +62,7 @@ public class HttpUtils {
         }
 
         Map<String, String> ret = new HashMap<>();
-        putParameter(decodedUrl.substring(indexOf + 1), ret, ";");
+        putParameter(decodedUrl.substring(indexOf + 1), ret, "&");
         return ret;
     }
 

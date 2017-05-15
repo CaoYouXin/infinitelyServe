@@ -27,9 +27,12 @@ public class Service001Main {
                 break;
             case "stop":
 
-                ShutDownConfig shutDownConfig = util.getConfigFromFile(util.getRootFileName() + ".log", ShutDownConfig.class);
+                String fileName = util.getRootFileName() + ".log";
+
+                ShutDownConfig shutDownConfig = util.getConfigFromFile(fileName, ShutDownConfig.class);
                 new Stopper(shutDownConfig.getHostName(), shutDownConfig.getHostPort(), shutDownConfig.getToken()).call();
 
+                util.eraseConfigFile(fileName);
                 break;
             default:
                 break;

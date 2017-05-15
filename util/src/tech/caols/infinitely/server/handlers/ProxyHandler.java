@@ -127,6 +127,11 @@ public class ProxyHandler implements HttpRequestHandler {
             SimplePool.get().release(connEntry);
         }
 
+        httpResponse.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+//        httpResponse.setHeader("Access-Control-Allow-Methods", "GET");
+//        httpResponse.setHeader("Access-Control-Allow-Headers", "X-Requested-With,content-type");
+//        httpResponse.setHeader("Access-Control-Allow-Credentials", true);
+
         Object retObject = httpContext.getAttribute(Constants.RET_OBJECT);
         if (null != retObject) {
             HttpUtils.response(httpResponse, new JsonRes<>(Constants.CODE_VALID, retObject));

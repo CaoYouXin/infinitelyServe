@@ -69,4 +69,9 @@ public class ConfigUtil {
     public String getRootFileName() {
         return rootFileName;
     }
+
+    public void eraseConfigFile(String fileName) {
+        File file = new File(this.basePathOfClass, fileName);
+        file.deleteOnExit();
+    }
 }

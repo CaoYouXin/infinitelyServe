@@ -69,14 +69,14 @@ public class Register implements CallBack {
             }
             String uri = "/" + this.type + ".cfg?loc="
                     + SimpleUtils.getLocalHostLANAddress().getHostAddress()
-                    + ";port=" + this.port + ";url=" + this.url;
+                    + "&port=" + this.port + "&url=" + this.url;
 
             if (null != this.parameters) {
-                uri += ";parameters=" + this.parameters;
+                uri += "&parameters=" + this.parameters;
             }
 
             if (null != this.needBody) {
-                uri += ";needBody=" + Boolean.toString(this.needBody);
+                uri += "&needBody=" + Boolean.toString(this.needBody);
             }
 
             BasicHttpRequest request = new BasicHttpRequest("GET", uri);
