@@ -5,6 +5,7 @@ import org.apache.http.impl.pool.BasicConnPool;
 import org.apache.http.impl.pool.BasicPoolEntry;
 import org.apache.http.pool.PoolStats;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -47,9 +48,12 @@ public class SimplePool {
         }
     }
 
-    public void close() {
-        this.pool.closeExpired();
-        this.pool.closeIdle(1, TimeUnit.NANOSECONDS);
+    public void shutdown() {
+        try {
+            this.pool.shutdown();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

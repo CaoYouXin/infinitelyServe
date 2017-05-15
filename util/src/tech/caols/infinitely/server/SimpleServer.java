@@ -79,9 +79,8 @@ public class SimpleServer {
 
     public void shutdown() {
         this.server.shutdown(5, TimeUnit.SECONDS);
-        SimplePool.get().close();
+        SimplePool.get().shutdown();
     }
-
 
     private static class StdErrorExceptionLogger implements ExceptionLogger {
 

@@ -51,6 +51,12 @@ public class Stopper {
 
         } catch (IOException | HttpException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                conn.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
