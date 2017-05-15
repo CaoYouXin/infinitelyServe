@@ -1,10 +1,13 @@
 package tech.caols.infinitely.server;
 
-import org.apache.http.Consts;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpRequest;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.*;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
+import tech.caols.infinitely.Constants;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -123,6 +126,23 @@ public class HttpUtils {
             }
         }
         return new byte[0];
+    }
+
+    public static void response(HttpResponse httpResponse, JsonRes jsonRes) {
+        httpResponse.setStatusCode(HttpStatus.SC_OK);
+        try {
+            httpResponse.setEntity(new StringEntity(
+                    new ObjectMapper().writeValueAsString(jsonRes),
+                    ContentType.APPLICATION_JSON
+            ));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            httpResponse.setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public static void response(HttpContext httpContext, Object jsonResBody) {
+        httpContext.setAttribute(Constants.RET_OBJECT, jsonResBody);
     }
 
 }

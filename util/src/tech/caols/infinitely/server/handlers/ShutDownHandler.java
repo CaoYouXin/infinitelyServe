@@ -3,9 +3,11 @@ package tech.caols.infinitely.server.handlers;
 import org.apache.http.*;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
+import tech.caols.infinitely.Constants;
 import tech.caols.infinitely.config.ConfigUtil;
 import tech.caols.infinitely.config.ShutDownConfig;
 import tech.caols.infinitely.server.HttpUtils;
+import tech.caols.infinitely.server.JsonRes;
 import tech.caols.infinitely.server.SimpleServer;
 
 import java.io.IOException;
@@ -34,6 +36,7 @@ public class ShutDownHandler implements HttpRequestHandler {
             ShutDownConfig config = util.getConfigFromFile(util.getRootFileName() + ".log", ShutDownConfig.class);
 
             if (token.equals(config.getToken())) {
+                HttpUtils.response(httpResponse, new JsonRes(Constants.CODE_VALID));
                 this.server.shutdown();
             }
         } else {

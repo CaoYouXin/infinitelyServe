@@ -11,6 +11,7 @@ import org.apache.http.util.EntityUtils;
 import tech.caols.infinitely.Constants;
 import tech.caols.infinitely.config.PrePostConfig;
 import tech.caols.infinitely.server.HttpUtils;
+import tech.caols.infinitely.server.JsonRes;
 import tech.caols.infinitely.server.SimplePool;
 
 import java.io.IOException;
@@ -75,14 +76,14 @@ public class ProxyHandler implements HttpRequestHandler {
             } else {
                 Map sets = (Map) preRetObject.get(Constants.OUT_SET);
                 if (null != sets) {
-                    for(Object key: sets.keySet()) {
+                    for (Object key : sets.keySet()) {
                         httpContext.setAttribute((String) key, sets.get(key));
                     }
                 }
 
                 List removes = (List) preRetObject.get(Constants.OUT_REMOVE);
                 if (null != removes) {
-                    for(Object removeKey: removes) {
+                    for (Object removeKey : removes) {
                         httpContext.removeAttribute((String) removeKey);
                     }
                 }
@@ -126,10 +127,8 @@ public class ProxyHandler implements HttpRequestHandler {
             SimplePool.get().release(connEntry);
         }
 
-        httpResponse.setStatusCode(HttpStatus.SC_OK);
-        httpResponse.setEntity(new StringEntity(
-                objectMapper.writeValueAsString(httpContext.getAttribute(Constants.RET_OBJECT)),
-                ContentType.APPLICATION_JSON
+        HttpUtils.response(httpResponse, new JsonRes(Constants.CODE_VALID,
+                httpContext.getAttribute(Constants.RET_OBJECT)
         ));
     }
 

@@ -3,8 +3,10 @@ package tech.caols.infinitely.server.handlers;
 import org.apache.http.*;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
+import tech.caols.infinitely.Constants;
 import tech.caols.infinitely.config.PrePostConfig;
 import tech.caols.infinitely.server.HttpUtils;
+import tech.caols.infinitely.server.JsonRes;
 
 import java.io.IOException;
 import java.util.Map;
@@ -36,6 +38,7 @@ public class CfgHandler implements HttpRequestHandler {
                 PrePostConfig.get().setParameters(url, type, HttpUtils.getListParameter(parameters));
             }
 
+            HttpUtils.response(httpResponse, new JsonRes(Constants.CODE_VALID));
             System.out.println(PrePostConfig.get());
         } else {
             throw new RuntimeException("wrong config url pattern.");

@@ -22,5 +22,6 @@ public class Constants {
      * ret code
      */
     public static final int CODE_INVALID = 50100;
+    public static final int CODE_VALID = 20000;
 
 }

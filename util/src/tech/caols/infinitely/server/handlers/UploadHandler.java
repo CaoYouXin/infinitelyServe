@@ -3,9 +3,11 @@ package tech.caols.infinitely.server.handlers;
 import org.apache.http.*;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
+import tech.caols.infinitely.Constants;
 import tech.caols.infinitely.afd.AFD;
 import tech.caols.infinitely.afd.AFDEventHandler;
 import tech.caols.infinitely.server.HttpUtils;
+import tech.caols.infinitely.server.JsonRes;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -109,6 +111,7 @@ public class UploadHandler implements HttpRequestHandler {
         }
 
         System.out.println(Arrays.toString(items.toArray()));
+        HttpUtils.response(httpResponse, new JsonRes(Constants.CODE_VALID));
     }
 
 

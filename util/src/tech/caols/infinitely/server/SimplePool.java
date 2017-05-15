@@ -47,4 +47,9 @@ public class SimplePool {
         }
     }
 
+    public void close() {
+        this.pool.closeExpired();
+        this.pool.closeIdle(1, TimeUnit.NANOSECONDS);
+    }
+
 }

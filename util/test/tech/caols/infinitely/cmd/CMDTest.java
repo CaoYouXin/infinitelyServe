@@ -15,11 +15,11 @@ public class CMDTest {
 //        run("java -jar " + dir + fileName + "/"
 //                + fileName.replace('_', '.') + " start", false);
 
-        run("ls ./out/", true);
+        run("ls /Users/cls/Dev/Git/personal/infinitely/serve/out/artifacts/*/*.log", true);
     }
 
     public static void run(String cmd, boolean wait) throws IOException, InterruptedException {
-        Process proc = Runtime.getRuntime().exec(cmd);
+        Process proc = Runtime.getRuntime().exec(new String[] { "bash", "-c", cmd });
 
         if (!wait) {
             return;
