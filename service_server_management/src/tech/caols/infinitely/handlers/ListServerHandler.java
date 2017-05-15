@@ -8,6 +8,7 @@ import org.apache.http.MethodNotSupportedException;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 import tech.caols.infinitely.Constants;
+import tech.caols.infinitely.SimpleUtils;
 import tech.caols.infinitely.server.HttpUtils;
 import tech.caols.infinitely.server.JsonRes;
 
@@ -43,7 +44,7 @@ public class ListServerHandler implements HttpRequestHandler {
     }
 
     private Collection<Server> collectNotDeployedServer() throws IOException {
-        List<String> notDeployedServers = run("ls " + this.uploadRoot + "*_jar.zip", true);
+        List<String> notDeployedServers = SimpleUtils.run("ls " + this.uploadRoot + "*_jar.zip", true);
 
         final List<Server> ret = new ArrayList<>();
         notDeployedServers.forEach(notDeployedServer -> {
@@ -64,8 +65,8 @@ public class ListServerHandler implements HttpRequestHandler {
     }
 
     private List<Server> collectDeployedServer() throws IOException {
-        final List<String> deployedServers = this.run("ls " + this.serverRoot, true);
-        final List<String> runningServers = this.run("ls " + this.serverRoot + "*/*.log", true);
+        final List<String> deployedServers = SimpleUtils.run("ls " + this.serverRoot, true);
+        final List<String> runningServers = SimpleUtils.run("ls " + this.serverRoot + "*/*.log", true);
 
         final List<Server> ret = new ArrayList<>();
         deployedServers.forEach(deployedServer -> {
@@ -150,39 +151,6 @@ public class ListServerHandler implements HttpRequestHandler {
         public void setDeployed(boolean deployed) {
             this.deployed = deployed;
         }
-    }
-
-    private List<String> run(String cmd, boolean needOutput) throws IOException {
-        System.out.println(cmd);
-        Process process = Runtime.getRuntime().exec(new String[] { "bash", "-c", cmd });
-
-        if (!needOutput) {
-            return null;
-        }
-        List<String> ret = new ArrayList<>();
-
-        InputStream stdin = process.getInputStream();
-        InputStreamReader isr = new InputStreamReader(stdin);
-        BufferedReader br = new BufferedReader(isr);
-
-        String line = null;
-        System.out.println("<OUTPUT>");
-
-        while ( (line = br.readLine()) != null) {
-            System.out.println(line);
-            ret.add(line);
-        }
-
-        System.out.println("</OUTPUT>");
-        int exitVal = 0;
-        try {
-            exitVal = process.waitFor();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Process exitValue: " + exitVal);
-
-        return ret;
     }
 
 }

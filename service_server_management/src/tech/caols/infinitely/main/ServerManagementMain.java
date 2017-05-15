@@ -3,7 +3,9 @@ package tech.caols.infinitely.main;
 import tech.caols.infinitely.config.ConfigUtil;
 import tech.caols.infinitely.config.ShutDownConfig;
 import tech.caols.infinitely.config.SimpleConfig;
+import tech.caols.infinitely.handlers.ConfigServerHandler;
 import tech.caols.infinitely.handlers.ListServerHandler;
+import tech.caols.infinitely.handlers.ServerManipulationHandler;
 import tech.caols.infinitely.server.handlers.UploadHandler;
 import tech.caols.infinitely.server.SimpleServer;
 import tech.caols.infinitely.server.Stopper;
@@ -21,6 +23,10 @@ public class ServerManagementMain {
                 SimpleServer simpleServer = new SimpleServer(config.getServer().getPort(), config.getServer().getDocRoot())
                         .registerHandler("/server/list", new ProxyHandler(
                                 new ListServerHandler(config.getServerRoot(), config.getUploadRoot())
+                        )).registerHandler("/server/config", new ProxyHandler(
+                                new ConfigServerHandler(config.getServerRoot())
+                        )).registerHandler("/server/manipulation", new ProxyHandler(
+                                new ServerManipulationHandler(config.getServerRoot())
                         ))
                         .registerHandler("/upload", new UploadHandler(config.getUploadRoot()));
                 simpleServer.start(() -> {

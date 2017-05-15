@@ -127,9 +127,10 @@ public class ProxyHandler implements HttpRequestHandler {
             SimplePool.get().release(connEntry);
         }
 
-        HttpUtils.response(httpResponse, new JsonRes(Constants.CODE_VALID,
-                httpContext.getAttribute(Constants.RET_OBJECT)
-        ));
+        Object retObject = httpContext.getAttribute(Constants.RET_OBJECT);
+        if (null != retObject) {
+            HttpUtils.response(httpResponse, new JsonRes<>(Constants.CODE_VALID, retObject));
+        }
     }
 
 }

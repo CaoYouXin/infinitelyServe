@@ -1,6 +1,18 @@
 package tech.caols.infinitely.server;
 
+import tech.caols.infinitely.Constants;
+
 public class JsonRes<T> {
+
+    public static JsonRes SuccessJsonRes = new JsonRes(Constants.CODE_VALID);
+
+    public static JsonRes getSuccessJsonRes(String message) {
+        return new JsonRes<>(Constants.CODE_VALID, message);
+    }
+
+    public static JsonRes getFailJsonRes(String reason) {
+        return new JsonRes<>(Constants.CODE_INVALID, reason);
+    }
 
     private int code;
     private T body;
@@ -37,4 +49,5 @@ public class JsonRes<T> {
     public void setBody(T body) {
         this.body = body;
     }
+
 }

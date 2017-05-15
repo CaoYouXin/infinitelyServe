@@ -1,9 +1,15 @@
 package tech.caols.infinitely;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 public class SimpleUtils {
 
@@ -74,6 +80,39 @@ public class SimpleUtils {
             unknownHostException.initCause(e);
             throw unknownHostException;
         }
+    }
+
+    public static List<String> run(String cmd, boolean needOutput) throws IOException {
+        System.out.println(cmd);
+        Process process = Runtime.getRuntime().exec(new String[] { "bash", "-c", cmd });
+
+        if (!needOutput) {
+            return null;
+        }
+        List<String> ret = new ArrayList<>();
+
+        InputStream stdin = process.getInputStream();
+        InputStreamReader isr = new InputStreamReader(stdin);
+        BufferedReader br = new BufferedReader(isr);
+
+        String line = null;
+        System.out.println("<OUTPUT>");
+
+        while ( (line = br.readLine()) != null) {
+            System.out.println(line);
+            ret.add(line);
+        }
+
+        System.out.println("</OUTPUT>");
+        int exitVal = 0;
+        try {
+            exitVal = process.waitFor();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Process exitValue: " + exitVal);
+
+        return ret;
     }
 
 }

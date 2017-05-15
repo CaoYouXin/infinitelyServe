@@ -16,6 +16,8 @@ import java.util.*;
 
 public class HttpUtils {
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     public static String getMethod(HttpRequest httpRequest) {
         return httpRequest.getRequestLine().getMethod().toUpperCase(Locale.ROOT);
     }
@@ -128,11 +130,21 @@ public class HttpUtils {
         return new byte[0];
     }
 
+    public static <T> T getBodyAsObject(HttpRequest httpRequest, Class<T> clazz) {
+        String bodyAsString = getBodyAsString(httpRequest);
+        try {
+            return objectMapper.readValue(bodyAsString, clazz);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public static void response(HttpResponse httpResponse, JsonRes jsonRes) {
         httpResponse.setStatusCode(HttpStatus.SC_OK);
         try {
             httpResponse.setEntity(new StringEntity(
-                    new ObjectMapper().writeValueAsString(jsonRes),
+                    objectMapper.writeValueAsString(jsonRes),
                     ContentType.APPLICATION_JSON
             ));
         } catch (JsonProcessingException e) {
