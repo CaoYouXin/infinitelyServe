@@ -1,9 +1,8 @@
 package tech.caols.infinitely;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import org.apache.commons.io.IOUtils;
+
+import java.io.*;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
@@ -113,6 +112,19 @@ public class SimpleUtils {
         System.out.println("Process exitValue: " + exitVal);
 
         return ret;
+    }
+
+    public static String getFileWithUtil(File file) {
+
+        String result = "";
+
+        try {
+            result = IOUtils.toString(new FileInputStream(file));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return result;
     }
 
 }

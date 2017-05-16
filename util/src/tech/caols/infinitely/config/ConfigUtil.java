@@ -3,6 +3,7 @@ package tech.caols.infinitely.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Consts;
+import tech.caols.infinitely.SimpleUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -54,16 +55,7 @@ public class ConfigUtil {
     }
 
     private String getFileWithUtil(String fileName) {
-
-        String result = "";
-
-        try {
-            result = IOUtils.toString(new FileInputStream(new File(this.basePathOfClass, fileName)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return result;
+        return SimpleUtils.getFileWithUtil(new File(this.basePathOfClass, fileName));
     }
 
     public String getRootFileName() {

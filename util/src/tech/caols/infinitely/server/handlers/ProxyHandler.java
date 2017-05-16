@@ -50,7 +50,8 @@ public class ProxyHandler implements HttpRequestHandler {
                     httpRequest.getHeaders("Origin")[0].getValue());
             httpResponse.setHeader("Access-Control-Allow-Methods",
                     httpRequest.getHeaders("Access-Control-Request-Method")[0].getValue());
-//            httpResponse.setHeader("Access-Control-Allow-Headers", "X-Requested-With,content-type");
+            httpResponse.setHeader("Access-Control-Allow-Headers",
+                    httpRequest.getHeaders("Access-Control-Request-Headers")[0].getValue());
             httpResponse.setStatusCode(HttpStatus.SC_OK);
 
             return;

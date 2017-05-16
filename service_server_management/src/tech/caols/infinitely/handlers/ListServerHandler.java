@@ -38,9 +38,10 @@ public class ListServerHandler implements HttpRequestHandler {
             throw new MethodNotSupportedException(HttpUtils.getMethod(httpRequest) + " method not supported");
         }
 
-        List<Server> body = this.collectDeployedServer();
+        List<Server> body = this.collectDeployedServer(), ret = new ArrayList<>();
         body.addAll(this.collectNotDeployedServer());
-        HttpUtils.response(httpContext, body);
+        body.stream().filter(server -> !server.getName().equals("service_server_management_jar")).forEach(ret::add);
+        HttpUtils.response(httpContext, ret);
     }
 
     private Collection<Server> collectNotDeployedServer() throws IOException {
