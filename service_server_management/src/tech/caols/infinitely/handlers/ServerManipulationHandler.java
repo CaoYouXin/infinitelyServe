@@ -50,9 +50,8 @@ public class ServerManipulationHandler implements HttpRequestHandler {
                 SimpleUtils.run("java -jar " + target + " start", false);
                 break;
             case "deploy":
-                SimpleUtils.run("unzip -qo " + this.uploadRoot + at + ".zip -d " + this.serverRoot, true);
-                File file = new File(this.uploadRoot, at + ".zip");
-                file.deleteOnExit();
+                String zipFile = this.uploadRoot + at + ".zip";
+                SimpleUtils.run("unzip -qo " + zipFile + " -d " + this.serverRoot + " && rm " + zipFile, false);
                 break;
             default:
                 throw new RuntimeException("can not understand request " + aDo);
