@@ -36,24 +36,40 @@ public class ProxyHandler implements HttpRequestHandler {
         this.handler = handler;
     }
 
+    private void setCORS(HttpRequest httpRequest, String reqHeaderName, HttpResponse httpResponse, String resHeaderName) {
+        Header[] headers = httpRequest.getHeaders(reqHeaderName);
+        System.out.println(reqHeaderName + " : " + Arrays.toString(headers));
+
+        if (headers.length > 0) {
+            for (Header header : headers) {
+                httpResponse.setHeader(resHeaderName, header.getValue());
+            }
+        }
+    }
+
     @Override
     public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext) throws HttpException, IOException {
 
+
         httpResponse.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
         httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
+
+        setCORS(httpRequest, "Origin",
+                httpResponse, "Access-Control-Allow-Origin");
+
+        setCORS(httpRequest, "Access-Control-Allow-Method",
+                httpResponse, "Access-Control-Request-Methods");
+
+        setCORS(httpRequest, "Access-Control-Request-Headers",
+                httpResponse, "Access-Control-Allow-Headers");
+
+        setCORS(httpRequest, "Access-Control-Allow-Credentials",
+                httpResponse, "Access-Control-Allow-Credentials");
+
+
         if (HttpUtils.isOptions(httpRequest)) {
 
-            System.out.println(Arrays.toString(httpRequest.getHeaders("Origin")));
-            System.out.println(Arrays.toString(httpRequest.getHeaders("Access-Control-Request-Method")));
-            System.out.println(Arrays.toString(httpRequest.getHeaders("Access-Control-Request-Headers")));
-            httpResponse.setHeader("Access-Control-Allow-Origin",
-                    httpRequest.getHeaders("Origin")[0].getValue());
-            httpResponse.setHeader("Access-Control-Allow-Methods",
-                    httpRequest.getHeaders("Access-Control-Request-Method")[0].getValue());
-            httpResponse.setHeader("Access-Control-Allow-Headers",
-                    httpRequest.getHeaders("Access-Control-Request-Headers")[0].getValue());
             httpResponse.setStatusCode(HttpStatus.SC_OK);
-
             return;
 
         } else if (HttpUtils.isInvalidMethod(httpRequest)) {
