@@ -15,6 +15,7 @@ import tech.caols.infinitely.server.JsonRes;
 import tech.caols.infinitely.server.SimplePool;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,23 @@ public class ProxyHandler implements HttpRequestHandler {
     @Override
     public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext) throws HttpException, IOException {
 
-        if (HttpUtils.isInvalidMethod(httpRequest)) {
+        httpResponse.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
+        httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
+        if (HttpUtils.isOptions(httpRequest)) {
+
+            System.out.println(Arrays.toString(httpRequest.getHeaders("Origin")));
+            System.out.println(Arrays.toString(httpRequest.getHeaders("Access-Control-Request-Method")));
+            System.out.println(Arrays.toString(httpRequest.getHeaders("Access-Control-Request-Headers")));
+            httpResponse.setHeader("Access-Control-Allow-Origin",
+                    httpRequest.getHeaders("Origin")[0].getValue());
+            httpResponse.setHeader("Access-Control-Allow-Methods",
+                    httpRequest.getHeaders("Access-Control-Request-Method")[0].getValue());
+//            httpResponse.setHeader("Access-Control-Allow-Headers", "X-Requested-With,content-type");
+            httpResponse.setStatusCode(HttpStatus.SC_OK);
+
+            return;
+
+        } else if (HttpUtils.isInvalidMethod(httpRequest)) {
             throw new MethodNotSupportedException(HttpUtils.getMethod(httpRequest) + " method not supported");
         }
 
@@ -126,11 +143,6 @@ public class ProxyHandler implements HttpRequestHandler {
         if (null != connEntry) {
             SimplePool.get().release(connEntry);
         }
-
-        httpResponse.setHeader("Access-Control-Allow-Origin", "http://localhost:4200");
-//        httpResponse.setHeader("Access-Control-Allow-Methods", "GET");
-//        httpResponse.setHeader("Access-Control-Allow-Headers", "X-Requested-With,content-type");
-//        httpResponse.setHeader("Access-Control-Allow-Credentials", true);
 
         Object retObject = httpContext.getAttribute(Constants.RET_OBJECT);
         if (null != retObject) {

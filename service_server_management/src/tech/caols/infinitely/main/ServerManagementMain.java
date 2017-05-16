@@ -28,7 +28,9 @@ public class ServerManagementMain {
                         )).registerHandler("/server/manipulation", new ProxyHandler(
                                 new ServerManipulationHandler(config.getServerRoot(), config.getUploadRoot())
                         ))
-                        .registerHandler("/upload", new UploadHandler(config.getUploadRoot()));
+                        .registerHandler("/upload", new ProxyHandler(
+                                new UploadHandler(config.getUploadRoot())
+                        ));
                 simpleServer.start(() -> {
                     System.out.println("service server management started.");
                     System.out.println(config);

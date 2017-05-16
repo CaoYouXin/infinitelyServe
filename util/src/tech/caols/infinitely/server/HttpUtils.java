@@ -30,6 +30,10 @@ public class HttpUtils {
         return getMethod(httpRequest).equals("POST");
     }
 
+    public static boolean isOptions(HttpRequest httpRequest) {
+        return getMethod(httpRequest).equals("OPTIONS");
+    }
+
     public static boolean isInvalidMethod(HttpRequest httpRequest) {
         String method = getMethod(httpRequest);
         return !method.equals("GET") && !method.equals("HEAD") && !method.equals("POST");
