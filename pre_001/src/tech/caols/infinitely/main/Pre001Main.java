@@ -3,6 +3,8 @@ package tech.caols.infinitely.main;
 import org.apache.http.HttpHost;
 import tech.caols.infinitely.CallBacks;
 import tech.caols.infinitely.Constants;
+import tech.caols.infinitely.SimpleUtils;
+import tech.caols.infinitely.cmd.Stop;
 import tech.caols.infinitely.config.ConfigUtil;
 import tech.caols.infinitely.config.ShutDownConfig;
 import tech.caols.infinitely.config.SimpleConfig;
@@ -17,50 +19,35 @@ import java.util.List;
 public class Pre001Main {
 
     public static void main(String[] args) {
-        ConfigUtil util = new ConfigUtil();
+        final ConfigUtil util = new ConfigUtil();
 
-        switch (args[0]) {
-            case "start":
+        SimpleUtils.main(args, () -> {
+            Config config = util.getConfigFromFile(util.getRootFileName() + ".json", Config.class);
+            System.out.println(config);
 
-                Config config = util.getConfigFromFile(util.getRootFileName() + ".json", Config.class);
-                System.out.println(config);
+            SimpleServer simpleServer = new SimpleServer(config.getServer().getPort(), config.getServer().getDocRoot());
+            simpleServer.registerHandler("/pre_request", new PreHandler());
 
-                SimpleServer simpleServer = new SimpleServer(config.getServer().getPort(), config.getServer().getDocRoot());
-                simpleServer.registerHandler("/pre_request", new PreHandler());
+            CallBacks callBacks = new CallBacks();
+            for (RegisterConfig registerConfig: config.getRegisters()) {
+                for (UrlConfig url: registerConfig.getUrls()) {
+                    Register register = new Register(new HttpHost(registerConfig.getHost().getName(),
+                            registerConfig.getHost().getPort()),
+                            Constants.PRE_PROCESSOR, url.getUrl(), config.getServer().getPort());
 
-                CallBacks callBacks = new CallBacks();
-                for (RegisterConfig registerConfig: config.getRegisters()) {
-                    for (UrlConfig url: registerConfig.getUrls()) {
-                        Register register = new Register(new HttpHost(registerConfig.getHost().getName(),
-                                registerConfig.getHost().getPort()),
-                                Constants.PRE_PROCESSOR, url.getUrl(), config.getServer().getPort());
-
-                        if (null != url.getParameters() && !"null".equals(url.getParameters())) {
-                            register.setParamters(url.getParameters());
-                        }
-
-                        if (null != url.getNeedBody()) {
-                            register.setNeedBody(url.getNeedBody());
-                        }
-
-                        callBacks.add(register);
+                    if (null != url.getParameters() && !"null".equals(url.getParameters())) {
+                        register.setParamters(url.getParameters());
                     }
+
+                    if (null != url.getNeedBody()) {
+                        register.setNeedBody(url.getNeedBody());
+                    }
+
+                    callBacks.add(register);
                 }
-                simpleServer.start(callBacks);
-
-                break;
-            case "stop":
-
-                String fileName = util.getRootFileName() + ".log";
-
-                ShutDownConfig shutDownConfig = util.getConfigFromFile(fileName, ShutDownConfig.class);
-                new Stopper(shutDownConfig.getHostName(), shutDownConfig.getHostPort(), shutDownConfig.getToken()).call();
-
-                util.eraseConfigFile(fileName);
-                break;
-            default:
-                break;
-        }
+            }
+            simpleServer.start(callBacks);
+        }, new Stop(util));
     }
 
     static class Config {

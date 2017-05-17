@@ -8,11 +8,11 @@ import org.apache.http.protocol.HttpRequestHandler;
 
 import java.io.IOException;
 
-public class UserAddHandler implements HttpRequestHandler {
+public class ListUserHandler implements HttpRequestHandler {
 
     @Override
     public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext) throws HttpException, IOException {
-        System.out.println("user add");
+
     }
 
 }

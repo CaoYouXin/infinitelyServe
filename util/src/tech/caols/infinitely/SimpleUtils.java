@@ -1,7 +1,14 @@
 package tech.caols.infinitely;
 
+import jdk.nashorn.internal.codegen.CompilerConstants;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpHost;
+import tech.caols.infinitely.config.ShutDownConfig;
+import tech.caols.infinitely.register.Register;
+import tech.caols.infinitely.server.SimpleServer;
+import tech.caols.infinitely.server.Stopper;
 
+import javax.management.relation.RoleUnresolved;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -125,6 +132,23 @@ public class SimpleUtils {
         }
 
         return result;
+    }
+
+    public static void main(String[] args, CallBack start, CallBack stop) {
+        if (args.length < 1) {
+            throw new RuntimeException("arguments less than 1.");
+        }
+
+        switch (args[0]) {
+            case "start":
+                start.call();
+                break;
+            case "stop":
+                stop.call();
+                break;
+            default:
+                throw new RuntimeException("can not understand command : " + args[0]);
+        }
     }
 
 }

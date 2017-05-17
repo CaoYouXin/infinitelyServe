@@ -106,7 +106,9 @@ public class ProxyHandler implements HttpRequestHandler {
 
             HashMap preRetObject = objectMapper.readValue(preRet, HashMap.class);
             if (preRetObject.get(Constants.CODE).equals(Constants.INVALID)) {
-                abort = true;
+
+                HttpUtils.response(httpResponse, JsonRes.getFailJsonRes("one of the pre processors commands returning a fail."));
+                return;
             } else {
                 Map sets = (Map) preRetObject.get(Constants.OUT_SET);
                 if (null != sets) {
@@ -122,15 +124,6 @@ public class ProxyHandler implements HttpRequestHandler {
                     }
                 }
             }
-        }
-
-        if (abort) {
-            httpResponse.setStatusCode(HttpStatus.SC_OK);
-            httpResponse.setEntity(new StringEntity(
-                    "{\"code\":" + Constants.CODE_INVALID + "}",
-                    ContentType.APPLICATION_JSON
-            ));
-            return;
         }
 
         this.handler.handle(httpRequest, httpResponse, httpContext);
