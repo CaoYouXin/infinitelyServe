@@ -6,11 +6,16 @@ import org.apache.http.HttpResponse;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.protocol.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import tech.caols.infinitely.CallBack;
 
 import java.io.IOException;
 import java.net.Socket;
 
-public class Stopper {
+public class Stopper implements CallBack {
+
+    private static final Logger logger = LogManager.getLogger(Stopper.class);
 
     private final HttpHost host;
     private final BasicHttpRequest request;
@@ -31,6 +36,7 @@ public class Stopper {
         this.httpExecutor = new HttpRequestExecutor();
     }
 
+    @Override
     public void call() {
         HttpCoreContext coreContext = HttpCoreContext.create();
         coreContext.setTargetHost(this.host);
@@ -41,21 +47,21 @@ public class Stopper {
                 conn.bind(socket);
             }
 
-            System.out.println("request => " + this.request.getRequestLine());
+            logger.info("request => " + this.request.getRequestLine());
 
             this.httpExecutor.preProcess(this.request, this.httpproc, coreContext);
             HttpResponse httpResponse = this.httpExecutor.execute(this.request, conn, coreContext);
             this.httpExecutor.postProcess(httpResponse, this.httpproc, coreContext);
 
-            System.out.println("response => " + httpResponse.getStatusLine());
+            logger.info("response => " + httpResponse.getStatusLine());
 
         } catch (IOException | HttpException e) {
-            e.printStackTrace();
+            logger.catching(e);
         } finally {
             try {
                 conn.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.catching(e);
             }
         }
     }

@@ -3,6 +3,8 @@ package tech.caols.infinitely.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Consts;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import tech.caols.infinitely.SimpleUtils;
 
 import java.io.File;
@@ -16,6 +18,8 @@ import java.util.Map;
 import java.util.StringJoiner;
 
 public class ConfigUtil {
+
+    private static final Logger logger = LogManager.getLogger(ConfigUtil.class);
 
     private String basePathOfClass = getClass()
             .getProtectionDomain().getCodeSource().getLocation().getFile();
@@ -37,7 +41,7 @@ public class ConfigUtil {
         try {
             return new ObjectMapper().readValue(this.getFileWithUtil(fileName), clazz);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.catching(e);
         }
         return null;
     }
@@ -49,7 +53,7 @@ public class ConfigUtil {
                     new FileOutputStream(new File(this.basePathOfClass, fileName))
                     , Consts.UTF_8);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.catching(e);
         }
 
     }

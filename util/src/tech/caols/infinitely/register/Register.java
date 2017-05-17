@@ -7,6 +7,8 @@ import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.protocol.*;
 import org.apache.http.util.EntityUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import tech.caols.infinitely.CallBack;
 import tech.caols.infinitely.Constants;
 import tech.caols.infinitely.SimpleUtils;
@@ -15,6 +17,8 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class Register implements CallBack {
+
+    private static final Logger logger = LogManager.getLogger(Register.class);
 
     private HttpHost host;
     private String type;
@@ -80,22 +84,22 @@ public class Register implements CallBack {
             }
 
             BasicHttpRequest request = new BasicHttpRequest("GET", uri);
-            System.out.println(">> Request URI: " + request.getRequestLine().getUri());
+            logger.info(">> Request URI: " + request.getRequestLine().getUri());
 
             httpExecutor.preProcess(request, httpproc, coreContext);
             HttpResponse response = httpExecutor.execute(request, conn, coreContext);
             httpExecutor.postProcess(response, httpproc, coreContext);
 
-            System.out.println("<< Response: " + response.getStatusLine());
-            System.out.println(EntityUtils.toString(response.getEntity()));
-            System.out.println("==============");
+            logger.info("<< Response: " + response.getStatusLine());
+            logger.info(EntityUtils.toString(response.getEntity()));
+            logger.info("==============");
         } catch (IOException | HttpException e) {
-            e.printStackTrace();
+            logger.catching(e);
         } finally {
             try {
                 conn.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.catching(e);
             }
         }
     }

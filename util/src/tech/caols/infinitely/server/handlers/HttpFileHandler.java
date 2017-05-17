@@ -8,6 +8,8 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.util.EntityUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import tech.caols.infinitely.server.HttpUtils;
 
 import java.io.File;
@@ -15,6 +17,8 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 public class HttpFileHandler implements HttpRequestHandler {
+
+    private static final Logger logger = LogManager.getLogger(HttpFileHandler.class);
 
     private final String docRoot;
 
@@ -30,7 +34,7 @@ public class HttpFileHandler implements HttpRequestHandler {
             throw new MethodNotSupportedException(HttpUtils.getMethod(httpRequest) + " method not supported");
         }
 
-        System.out.println("Incoming entity content (bytes): " + HttpUtils.getBodyAsBytes(httpRequest).length);
+        logger.info("Incoming entity content (bytes): " + HttpUtils.getBodyAsBytes(httpRequest).length);
 
         File file = new File(this.docRoot, HttpUtils.getDecodedUrl(httpRequest));
         this.processFile(httpResponse, httpContext, file);
@@ -46,7 +50,7 @@ public class HttpFileHandler implements HttpRequestHandler {
                             " not found</h1></body></html>",
                     ContentType.create("text/html", "UTF-8"));
             httpResponse.setEntity(entity);
-            System.out.println("File " + file.getPath() + " not found");
+            logger.info("File " + file.getPath() + " not found");
 
         } else if (file.isDirectory()) {
 
@@ -60,7 +64,7 @@ public class HttpFileHandler implements HttpRequestHandler {
                     "<html><body><h1>Access denied</h1></body></html>",
                     ContentType.create("text/html", "UTF-8"));
             httpResponse.setEntity(entity);
-            System.out.println("Cannot read file " + file.getPath());
+            logger.info("Cannot read file " + file.getPath());
 
         } else {
             HttpCoreContext coreContext = HttpCoreContext.adapt(httpContext);
@@ -68,7 +72,7 @@ public class HttpFileHandler implements HttpRequestHandler {
             httpResponse.setStatusCode(HttpStatus.SC_OK);
             FileEntity body = new FileEntity(file, ContentType.create("text/html", (Charset) null));
             httpResponse.setEntity(body);
-            System.out.println(conn + ": serving file " + file.getPath());
+            logger.info(conn + ": serving file " + file.getPath());
         }
 
     }

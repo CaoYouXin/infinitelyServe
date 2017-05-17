@@ -1,6 +1,9 @@
 package tech.caols.infinitely.main;
 
 import org.apache.http.HttpHost;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import tech.caols.infinitely.CallBack;
 import tech.caols.infinitely.CallBacks;
 import tech.caols.infinitely.Constants;
 import tech.caols.infinitely.SimpleUtils;
@@ -18,12 +21,13 @@ import java.util.List;
 
 public class Pre001Main {
 
+    private static final Logger logger = LogManager.getLogger(Pre001Main.class);
+
     public static void main(String[] args) {
         final ConfigUtil util = new ConfigUtil();
 
         SimpleUtils.main(args, () -> {
-            Config config = util.getConfigFromFile(util.getRootFileName() + ".json", Config.class);
-            System.out.println(config);
+            final Config config = util.getConfigFromFile(util.getRootFileName() + ".json", Config.class);
 
             SimpleServer simpleServer = new SimpleServer(config.getServer().getPort(), config.getServer().getDocRoot());
             simpleServer.registerHandler("/pre_request", new PreHandler());
@@ -46,7 +50,7 @@ public class Pre001Main {
                     callBacks.add(register);
                 }
             }
-            simpleServer.start(callBacks);
+            simpleServer.start(callBacks.add(() -> logger.info(config)));
         }, new Stop(util));
     }
 

@@ -1,0 +1,8 @@
+{
+  "server": {
+    "port": 9000,
+    "docRoot": "/Users/cls/Dev/Git/personal/infinitely/html/server_management/docs/"
+  },
+  "serverRoot": "/Users/cls/Dev/Git/personal/infinitely/serve/out/artifacts/",
+  "uploadRoot": "/Users/cls/Dev/Git/personal/infinitely/serve/out/testout/"
+}

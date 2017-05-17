@@ -3,6 +3,8 @@ package tech.caols.infinitely.server.handlers;
 import org.apache.http.*;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import tech.caols.infinitely.Constants;
 import tech.caols.infinitely.config.PrePostConfig;
 import tech.caols.infinitely.server.HttpUtils;
@@ -12,6 +14,8 @@ import java.io.IOException;
 import java.util.Map;
 
 public class CfgHandler implements HttpRequestHandler {
+
+    private static final Logger logger = LogManager.getLogger(CfgHandler.class);
 
     @Override
     public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext) throws HttpException, IOException {
@@ -39,7 +43,7 @@ public class CfgHandler implements HttpRequestHandler {
             }
 
             HttpUtils.response(httpResponse, new JsonRes(Constants.CODE_VALID));
-            System.out.println(PrePostConfig.get());
+            logger.info(PrePostConfig.get());
         } else {
             throw new RuntimeException("wrong config url pattern.");
         }

@@ -1,5 +1,7 @@
 package tech.caols.infinitely.main;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import tech.caols.infinitely.SimpleUtils;
 import tech.caols.infinitely.cmd.Stop;
 import tech.caols.infinitely.config.ConfigUtil;
@@ -12,6 +14,8 @@ import tech.caols.infinitely.server.handlers.ProxyHandler;
 
 public class ServiceUserMain {
 
+    private static final Logger logger = LogManager.getLogger(ServiceUserMain.class);
+
     public static void main(String[] args) {
         final ConfigUtil util = new ConfigUtil();
 
@@ -22,8 +26,8 @@ public class ServiceUserMain {
                             new ListUserHandler()
                     ));
             simpleServer.start(() -> {
-                System.out.println("service [ServiceUserMain] started.");
-                System.out.println(config);
+                logger.info("service [ServiceUserMain] started.");
+                logger.info(config);
             });
         }, new Stop(util));
     }

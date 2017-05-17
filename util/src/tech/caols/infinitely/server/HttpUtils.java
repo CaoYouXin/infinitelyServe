@@ -7,6 +7,8 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import tech.caols.infinitely.Constants;
 
 import java.io.IOException;
@@ -15,6 +17,8 @@ import java.net.URLDecoder;
 import java.util.*;
 
 public class HttpUtils {
+
+    private static final Logger logger = LogManager.getLogger(HttpUtils.class);
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -43,7 +47,7 @@ public class HttpUtils {
         try {
             return URLDecoder.decode(httpRequest.getRequestLine().getUri(), "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            logger.catching(e);
             return "";
         }
     }
@@ -116,7 +120,7 @@ public class HttpUtils {
             try {
                 return EntityUtils.toString(entity, Consts.UTF_8);
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.catching(e);
             }
         }
         return "";
@@ -128,7 +132,7 @@ public class HttpUtils {
             try {
                 return EntityUtils.toByteArray(entity);
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.catching(e);
             }
         }
         return new byte[0];
@@ -139,7 +143,7 @@ public class HttpUtils {
         try {
             return objectMapper.readValue(bodyAsString, clazz);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.catching(e);
             return null;
         }
     }
@@ -147,12 +151,14 @@ public class HttpUtils {
     public static void response(HttpResponse httpResponse, JsonRes jsonRes) {
         httpResponse.setStatusCode(HttpStatus.SC_OK);
         try {
+            String retString = objectMapper.writeValueAsString(jsonRes);
+            logger.info("returning --->c" + retString);
             httpResponse.setEntity(new StringEntity(
-                    objectMapper.writeValueAsString(jsonRes),
+                    retString,
                     ContentType.APPLICATION_JSON
             ));
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            logger.catching(e);
             httpResponse.setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
     }

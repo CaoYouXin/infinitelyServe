@@ -4,6 +4,8 @@ import org.apache.http.HttpHost;
 import org.apache.http.impl.pool.BasicConnPool;
 import org.apache.http.impl.pool.BasicPoolEntry;
 import org.apache.http.pool.PoolStats;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -11,6 +13,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 public class SimplePool {
+
+    private static final Logger logger = LogManager.getLogger(SimplePool.class);
 
     private static final SimplePool _self = new SimplePool();
 
@@ -31,7 +35,7 @@ public class SimplePool {
         try {
             return future.get();
         } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
+            logger.catching(e);
         }
         return null;
     }
@@ -52,7 +56,7 @@ public class SimplePool {
         try {
             this.pool.shutdown();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.catching(e);
         }
     }
 

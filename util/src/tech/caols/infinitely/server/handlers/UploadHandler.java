@@ -3,6 +3,8 @@ package tech.caols.infinitely.server.handlers;
 import org.apache.http.*;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import tech.caols.infinitely.Constants;
 import tech.caols.infinitely.afd.AFD;
 import tech.caols.infinitely.afd.AFDEventHandler;
@@ -15,6 +17,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class UploadHandler implements HttpRequestHandler {
+
+    private static final Logger logger = LogManager.getLogger(UploadHandler.class);
 
     private final String uploadRoot;
 
@@ -42,17 +46,17 @@ public class UploadHandler implements HttpRequestHandler {
         }
 
         String boundary = contentType.getValue().substring(indexOf + "; boundary=".length());
-        System.out.println(Arrays.toString(httpRequest.getHeaders("Content-Length")));
+        logger.info(Arrays.toString(httpRequest.getHeaders("Content-Length")));
 
         byte[] boundaryBytes = ("\r\n--" + boundary).getBytes(Consts.ASCII);
-        System.out.println("boundary : " + Arrays.toString(boundaryBytes));
+        logger.info("boundary : " + Arrays.toString(boundaryBytes));
         final List<FileItem> items = new ArrayList<>();
         AFD afd = new AFD(new AFDEventHandler() {
 
             @Override
             public void onHeaderName(byte[] headerNameBytes) {
                 String name = new String(headerNameBytes);
-                System.out.println("header name : " + name);
+                logger.info("header name : " + name);
 
                 FileItem fileItem = items.get(items.size() - 1);
                 fileItem.addHeader(new FileItem.FileItemHeader());
@@ -71,7 +75,7 @@ public class UploadHandler implements HttpRequestHandler {
             @Override
             public void onHeaderValue(byte[] headerValueBytes) {
                 String value = new String(headerValueBytes);
-                System.out.println("header value : " + value);
+                logger.info("header value : " + value);
 
                 FileItem fileItem = items.get(items.size() - 1);
                 String fileName = fileItem.getLastHeader().setValue(value);
@@ -84,8 +88,8 @@ public class UploadHandler implements HttpRequestHandler {
             @Override
             public void onPartData(byte[] partDataBytes) {
                 String partValue = new String(partDataBytes, Consts.UTF_8);
-                System.out.println("part value raw : " + Arrays.toString(partDataBytes));
-                System.out.println("part value : " + partValue);
+                logger.info("part value raw : " + Arrays.toString(partDataBytes));
+                logger.info("part value : " + partValue);
 
                 FileItem fileItem = items.get(items.size() - 1);
                 fileItem.setPartValue(partValue);
@@ -110,7 +114,7 @@ public class UploadHandler implements HttpRequestHandler {
             }
         }
 
-        System.out.println(Arrays.toString(items.toArray()));
+        logger.info(Arrays.toString(items.toArray()));
         HttpUtils.response(httpResponse, new JsonRes(Constants.CODE_VALID));
     }
 

@@ -8,6 +8,8 @@ import org.apache.http.impl.pool.BasicPoolEntry;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.protocol.*;
 import org.apache.http.util.EntityUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import tech.caols.infinitely.Constants;
 import tech.caols.infinitely.config.PrePostConfig;
 import tech.caols.infinitely.server.HttpUtils;
@@ -21,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ProxyHandler implements HttpRequestHandler {
+
+    private static final Logger logger = LogManager.getLogger(ProxyHandler.class);
 
     private HttpRequestHandler handler;
 
@@ -38,7 +42,7 @@ public class ProxyHandler implements HttpRequestHandler {
 
     private void setCORS(HttpRequest httpRequest, String reqHeaderName, HttpResponse httpResponse, String resHeaderName) {
         Header[] headers = httpRequest.getHeaders(reqHeaderName);
-        System.out.println(reqHeaderName + " : " + Arrays.toString(headers));
+        logger.info(reqHeaderName + " : " + Arrays.toString(headers));
 
         if (headers.length > 0) {
             for (Header header : headers) {
@@ -93,16 +97,16 @@ public class ProxyHandler implements HttpRequestHandler {
 
             BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/pre_request");
             request.setEntity(new StringEntity(objectMapper.writeValueAsString(map), ContentType.APPLICATION_JSON));
-            System.out.println(">> Request URI: " + request.getRequestLine().getUri());
+            logger.info(">> Request URI: " + request.getRequestLine().getUri());
 
             this.httpExecutor.preProcess(request, this.httpproc, coreContext);
             HttpResponse response = this.httpExecutor.execute(request, conn, coreContext);
             this.httpExecutor.postProcess(response, this.httpproc, coreContext);
 
-            System.out.println("<< Response: " + response.getStatusLine());
+            logger.info("<< Response: " + response.getStatusLine());
             String preRet = EntityUtils.toString(response.getEntity());
-            System.out.println(preRet);
-            System.out.println("==============");
+            logger.info(preRet);
+            logger.info("==============");
 
             HashMap preRetObject = objectMapper.readValue(preRet, HashMap.class);
             if (preRetObject.get(Constants.CODE).equals(Constants.INVALID)) {
@@ -139,15 +143,15 @@ public class ProxyHandler implements HttpRequestHandler {
 //
 //            BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/pre_request");
 //            request.setEntity(new StringEntity(new ObjectMapper().writeValueAsString(map), ContentType.APPLICATION_JSON));
-//            System.out.println(">> Request URI: " + request.getRequestLine().getUri());
+//            logger.info(">> Request URI: " + request.getRequestLine().getUri());
 //
 //            httpExecutor.preProcess(request, httpproc, coreContext);
 //            HttpResponse response = httpExecutor.execute(request, conn, coreContext);
 //            httpExecutor.postProcess(response, httpproc, coreContext);
 //
-//            System.out.println("<< Response: " + response.getStatusLine());
-//            System.out.println(EntityUtils.toString(response.getEntity()));
-//            System.out.println("==============");
+//            logger.info("<< Response: " + response.getStatusLine());
+//            logger.info(EntityUtils.toString(response.getEntity()));
+//            logger.info("==============");
 //        }
 
         if (null != connEntry) {

@@ -1,9 +1,10 @@
 package tech.caols.infinitely.main;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import tech.caols.infinitely.SimpleUtils;
 import tech.caols.infinitely.cmd.Stop;
 import tech.caols.infinitely.config.ConfigUtil;
-import tech.caols.infinitely.config.ShutDownConfig;
 import tech.caols.infinitely.config.SimpleConfig;
 import tech.caols.infinitely.handlers.ConfigServerHandler;
 import tech.caols.infinitely.handlers.GetServerConfigHandler;
@@ -11,10 +12,16 @@ import tech.caols.infinitely.handlers.ListServerHandler;
 import tech.caols.infinitely.handlers.ServerManipulationHandler;
 import tech.caols.infinitely.server.handlers.UploadHandler;
 import tech.caols.infinitely.server.SimpleServer;
-import tech.caols.infinitely.server.Stopper;
 import tech.caols.infinitely.server.handlers.ProxyHandler;
 
+
 public class ServerManagementMain {
+
+    static {
+        System.setProperty("log4j.configurationFile", "log4j2.xml");
+    }
+
+    private static final Logger logger = LogManager.getLogger(ServerManagementMain.class);
 
     public static void main(String[] args) {
         final ConfigUtil util = new ConfigUtil();
@@ -35,8 +42,8 @@ public class ServerManagementMain {
                             new UploadHandler(config.getUploadRoot())
                     ));
             simpleServer.start(() -> {
-                System.out.println("service server management started.");
-                System.out.println(config);
+                logger.info("service server management started.");
+                logger.info(config);
             });
         }, new Stop(util));
     }

@@ -6,6 +6,8 @@ import org.apache.http.config.SocketConfig;
 import org.apache.http.impl.bootstrap.HttpServer;
 import org.apache.http.impl.bootstrap.ServerBootstrap;
 import org.apache.http.protocol.HttpRequestHandler;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import tech.caols.infinitely.CallBack;
 import tech.caols.infinitely.SimpleUtils;
 import tech.caols.infinitely.config.ConfigUtil;
@@ -19,6 +21,8 @@ import java.net.SocketTimeoutException;
 import java.util.concurrent.TimeUnit;
 
 public class SimpleServer {
+
+    private static final Logger logger = LogManager.getLogger(SimpleServer.class);
 
     private final ServerBootstrap serverBootstrap;
     private final int port;
@@ -65,13 +69,13 @@ public class SimpleServer {
             util.setConfig(util.getRootFileName() + ".log", config);
 
             ShutDownConfig shutDownConfig = util.getConfigFromFile(util.getRootFileName() + ".log", ShutDownConfig.class);
-            System.out.println(shutDownConfig);
+            logger.info(shutDownConfig);
 
             callBack.call();
 
             _server.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
         } catch (InterruptedException | IOException e) {
-            e.printStackTrace();
+            logger.catching(e);
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> _server.shutdown(5, TimeUnit.SECONDS)));
@@ -87,11 +91,11 @@ public class SimpleServer {
         @Override
         public void log(final Exception ex) {
             if (ex instanceof SocketTimeoutException) {
-                System.err.println("Connection timed out");
+                logger.error("Connection timed out");
             } else if (ex instanceof ConnectionClosedException) {
-                System.err.println(ex.getMessage());
+                logger.error(ex.getMessage());
             } else {
-                ex.printStackTrace();
+                logger.catching(ex);
             }
         }
 

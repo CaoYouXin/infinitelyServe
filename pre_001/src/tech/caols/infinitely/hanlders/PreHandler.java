@@ -8,16 +8,22 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import tech.caols.infinitely.Constants;
+import tech.caols.infinitely.server.HttpUtils;
+import tech.caols.infinitely.server.JsonRes;
 
 import java.io.IOException;
 
 public class PreHandler implements HttpRequestHandler {
+
+    private static final Logger logger = LogManager.getLogger(PreHandler.class);
+
     @Override
     public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext) throws HttpException, IOException {
-        System.out.println("pre 001 handle");
+        logger.info("pre 001 handle");
 
-        httpResponse.setStatusCode(HttpStatus.SC_OK);
-        httpResponse.setEntity(new StringEntity("{\"code\":\""+ Constants.INVALID +"\"}", ContentType.APPLICATION_JSON));
+        HttpUtils.response(httpResponse, JsonRes.SuccessJsonRes);
     }
 }

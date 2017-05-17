@@ -3,6 +3,8 @@ package tech.caols.infinitely;
 import jdk.nashorn.internal.codegen.CompilerConstants;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpHost;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import tech.caols.infinitely.config.ShutDownConfig;
 import tech.caols.infinitely.register.Register;
 import tech.caols.infinitely.server.SimpleServer;
@@ -18,6 +20,8 @@ import java.util.Enumeration;
 import java.util.List;
 
 public class SimpleUtils {
+
+    private static final Logger logger = LogManager.getLogger(SimpleUtils.class);
 
     /**
      * Returns an <code>InetAddress</code> object encapsulating what is most likely the machine's LAN IP address.
@@ -89,7 +93,7 @@ public class SimpleUtils {
     }
 
     public static List<String> run(String cmd, boolean needOutput) throws IOException {
-        System.out.println(cmd);
+        logger.info(cmd);
         Process process = Runtime.getRuntime().exec(new String[] { "bash", "-c", cmd });
 
         if (!needOutput) {
@@ -102,21 +106,21 @@ public class SimpleUtils {
         BufferedReader br = new BufferedReader(isr);
 
         String line = null;
-        System.out.println("<OUTPUT>");
+        logger.info("<OUTPUT>");
 
         while ( (line = br.readLine()) != null) {
-            System.out.println(line);
+            logger.info(line);
             ret.add(line);
         }
 
-        System.out.println("</OUTPUT>");
+        logger.info("</OUTPUT>");
         int exitVal = 0;
         try {
             exitVal = process.waitFor();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.catching(e);
         }
-        System.out.println("Process exitValue: " + exitVal);
+        logger.info("Process exitValue: " + exitVal);
 
         return ret;
     }
@@ -128,7 +132,7 @@ public class SimpleUtils {
         try {
             result = IOUtils.toString(new FileInputStream(file));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.catching(e);
         }
 
         return result;
