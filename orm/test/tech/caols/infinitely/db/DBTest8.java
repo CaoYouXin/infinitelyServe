@@ -1,22 +1,15 @@
 package tech.caols.infinitely.db;
 
-import java.util.List;
 import java.util.StringJoiner;
 
-public class DBTest6 {
+public class DBTest8 {
 
     public static void main(String[] args) {
         TestRepository repository = new TestRepository();
 
         printArray(repository.findAll().toArray());
 
-        List<Test> floatGreaterThanHalf = repository.getCustomQueryResult();
-
-        printArray(floatGreaterThanHalf.toArray());
-
-        List<Test> customQueryResultWith = repository.getCustomQueryResultWith(4);
-
-        printArray(customQueryResultWith.toArray());
+        System.out.println(repository.updateBatch(6, 4));
     }
 
     public static <T> void printArray(T[] array) {

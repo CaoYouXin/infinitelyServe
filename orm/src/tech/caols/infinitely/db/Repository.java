@@ -4,17 +4,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import tech.caols.infinitely.db.helper.DBHelper;
 import tech.caols.infinitely.db.mapping.ColumnMapping;
-import tech.caols.infinitely.db.sql.SQL;
-import tech.caols.infinitely.db.sql.SqlFormat;
+import tech.caols.infinitely.db.sql.*;
 
-import javax.persistence.*;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.*;
-import java.text.DateFormat;
 import java.util.*;
 import java.util.Date;
 
@@ -130,21 +127,27 @@ public class Repository<T, ID> {
 
         switch (typeName) {
             case "byte":
+            case "java.lang.Byte":
                 setterMethod.invoke(one, resultSet.getByte(columnName));
                 break;
             case "short":
+            case "java.lang.Short":
                 setterMethod.invoke(one, resultSet.getShort(columnName));
                 break;
             case "int":
+            case "java.lang.Integer":
                 setterMethod.invoke(one, resultSet.getInt(columnName));
                 break;
             case "long":
+            case "java.lang.Long":
                 setterMethod.invoke(one, resultSet.getLong(columnName));
                 break;
             case "float":
+            case "java.lang.Float":
                 setterMethod.invoke(one, resultSet.getFloat(columnName));
                 break;
             case "double":
+            case "java.lang.Double":
                 setterMethod.invoke(one, resultSet.getDouble(columnName));
                 break;
             case "java.math.BigDecimal":
@@ -283,21 +286,27 @@ public class Repository<T, ID> {
     private void setPSbyFieldAtIndex(PreparedStatement preparedStatement, int index, Object invokeRet, String typeName) throws SQLException {
         switch (typeName) {
             case "byte":
+            case "java.lang.Byte":
                 preparedStatement.setByte(index, (Byte) invokeRet);
                 break;
             case "short":
+            case "java.lang.Short":
                 preparedStatement.setShort(index, (Short) invokeRet);
                 break;
             case "int":
+            case "java.lang.Integer":
                 preparedStatement.setInt(index, (Integer) invokeRet);
                 break;
             case "long":
+            case "java.lang.Long":
                 preparedStatement.setLong(index, (Long) invokeRet);
                 break;
             case "float":
+            case "java.lang.Float":
                 preparedStatement.setFloat(index, (Float) invokeRet);
                 break;
             case "double":
+            case "java.lang.Double":
                 preparedStatement.setDouble(index, (Double) invokeRet);
                 break;
             case "java.math.BigDecimal":
@@ -322,14 +331,13 @@ public class Repository<T, ID> {
     }
 
     public List<T> query(String s, String[] packageNames, Object... params) {
-        SQL sql = SqlFormat.getInstance().parse(s, packageNames);
+        SelectSQL selectSql = SqlFormat.getInstance().parseSelect(s, packageNames);
 
-        if (sql == null) {
+        if (selectSql == null) {
             throw new RuntimeException("impossible");
         }
 
-        System.out.println(sql);
-        if (!this.clazz.equals(sql.getResultClass())) {
+        if (!this.clazz.equals(selectSql.getResultClass())) {
             throw new RuntimeException("this query should not be contained in this repository");
         }
 
@@ -339,9 +347,9 @@ public class Repository<T, ID> {
 
             if (params.length == 0) {
                 Statement statement = conn.createStatement();
-                resultSet = statement.executeQuery(SqlFormat.getInstance().format(sql));
+                resultSet = statement.executeQuery(selectSql.getSql());
             } else {
-                PreparedStatement preparedStatement = conn.prepareStatement(SqlFormat.getInstance().format(sql));
+                PreparedStatement preparedStatement = conn.prepareStatement(selectSql.getSql());
                 int index = 0;
                 for (Object param : params) {
                     this.setPSbyFieldAtIndex(preparedStatement, ++index, param, param.getClass().getTypeName());
@@ -351,7 +359,7 @@ public class Repository<T, ID> {
 
             while (resultSet.next()) {
                 T one = this.buildOne();
-                this.fill(one, resultSet, sql.resultColumns());
+                this.fill(one, resultSet, selectSql.resultColumns());
                 ret.add(one);
             }
         } catch (SQLException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
@@ -368,5 +376,61 @@ public class Repository<T, ID> {
                 fill(one, resultSet, column);
             }
         }
+    }
+
+    public boolean remove(T one) {
+        String sql = String.format("Delete From `%s` Where `%s`=?", this.tableName(),
+                this.keyColumn().getColumn().name());
+
+        try (Connection conn = DatasourceFactory.getMySQLDataSource().getConnection()) {
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+
+            this.setPSbyFieldAtIndex(one, preparedStatement, 1, this.keyColumn());
+
+            return preparedStatement.executeUpdate() > 0;
+        } catch (Exception e) {
+            logger.catching(e);
+        }
+
+        return false;
+    }
+
+    public boolean update(String s, String[] packageNames, Object... params) {
+        UpdateSQL updateSQL = SqlFormat.getInstance().parseUpdate(s, packageNames);
+
+        return this.executeSQL(updateSQL, params);
+    }
+
+    public boolean remove(String s, String[] packageNames, Object... params) {
+        DeleteSQL deleteSQL = SqlFormat.getInstance().parseDelete(s, packageNames);
+
+        return this.executeSQL(deleteSQL, params);
+    }
+
+    private boolean executeSQL(SQL sql, Object[] params) {
+        if (sql == null) {
+            throw new RuntimeException("impossible");
+        }
+
+        System.out.println(sql);
+        try (Connection conn = DatasourceFactory.getMySQLDataSource().getConnection()) {
+
+            if (params.length == 0) {
+                Statement statement = conn.createStatement();
+                return statement.executeUpdate(sql.getSql()) > 0;
+            } else {
+                PreparedStatement preparedStatement = conn.prepareStatement(sql.getSql());
+                int index = 0;
+                for (Object param : params) {
+                    this.setPSbyFieldAtIndex(preparedStatement, ++index, param, param.getClass().getTypeName());
+                }
+                return preparedStatement.executeUpdate() > 0;
+            }
+
+        } catch (SQLException e) {
+            logger.catching(e);
+        }
+
+        return false;
     }
 }

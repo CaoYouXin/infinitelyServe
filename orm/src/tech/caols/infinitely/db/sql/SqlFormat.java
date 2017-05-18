@@ -20,9 +20,11 @@ public class SqlFormat {
     }
 
     private Pattern selectPattern = Pattern.compile("Select\\s+(?<select>.+?)\\s+From\\s+(?<from>.+?)(?:\\s+Where\\s+(?<where>.+?))*(?:\\s+Group By\\s+(?<groupBy>.+?)(?:\\s+Having\\s+(?<having>.+?))*)*(?:\\s+Order By\\s+(?<orderBy>.+?))*");
+    private Pattern updatePattern = Pattern.compile("Update\\s+(?<update>.+?)\\s+Set\\s+(?<set>.+?)(?:\\s+Where\\s+(?<where>.+?))*");
+    private Pattern deletePattern = Pattern.compile("Delete From\\s+(?<delete>.+?)(?:\\s+Where\\s+(?<where>.+?))*");
     private Pattern asPattern = Pattern.compile("\\s+(as\\s+)?");
 
-    public String matcherGroup(Matcher matcher, String groupName) {
+    private String matcherGroup(Matcher matcher, String groupName) {
         if (matcher.matches()) {
             try {
                 return matcher.group(groupName);
@@ -34,8 +36,8 @@ public class SqlFormat {
         return null;
     }
 
-    public SQL parse(String sql, String[] packageNames) {
-        SQL sqlObject = new SQL(packageNames);
+    public SelectSQL parseSelect(String sql, String[] packageNames) {
+        SelectSQL selectSqlObject = new SelectSQL(packageNames);
 
         Matcher m = selectPattern.matcher(sql);
 
@@ -46,46 +48,46 @@ public class SqlFormat {
         String having = this.matcherGroup(m, "having");
         String orderBy = this.matcherGroup(m, "orderBy");
 
-        this.parseFrom(from, sqlObject);
-        this.parseSelect(select, sqlObject);
+        this.parseFrom(from, selectSqlObject);
+        this.parseSelect(select, selectSqlObject);
 
         if (where != null) {
-            this.parseWhere(where + " ", sqlObject);
+            this.parseWhere(where + " ", selectSqlObject);
         }
 
         if (groupBy != null) {
-            this.parseGroupBy(groupBy + " ", sqlObject);
+            this.parseGroupBy(groupBy + " ", selectSqlObject);
         }
 
         if (having != null) {
-            this.parseHaving(having + " ", sqlObject);
+            this.parseHaving(having + " ", selectSqlObject);
         }
 
         if (orderBy != null) {
-            this.parseOrderBy(orderBy + " ", sqlObject);
+            this.parseOrderBy(orderBy + " ", selectSqlObject);
         }
 
-        return sqlObject;
+        return selectSqlObject;
     }
 
-    private void parseOrderBy(String orderBy, SQL sql) {
-        sql.setOrderBy(this.parseAlias(orderBy, sql));
+    private void parseOrderBy(String orderBy, SelectSQL selectSql) {
+        selectSql.setOrderBy(this.parseAlias(orderBy, selectSql, false));
     }
 
-    private void parseHaving(String having, SQL sql) {
-        sql.setHaving(this.parseAlias(having, sql));
+    private void parseHaving(String having, SelectSQL selectSql) {
+        selectSql.setHaving(this.parseAlias(having, selectSql, false));
     }
 
-    private void parseGroupBy(String groupBy, SQL sql) {
-        sql.setGroupBy(this.parseAlias(groupBy, sql));
+    private void parseGroupBy(String groupBy, SelectSQL selectSql) {
+        selectSql.setGroupBy(this.parseAlias(groupBy, selectSql, false));
     }
 
-    private void parseWhere(String where, SQL sql) {
-        sql.setWhere(this.parseAlias(where, sql));
+    private void parseWhere(String where, SelectSQL selectSql) {
+        selectSql.setWhere(this.parseAlias(where, selectSql, false));
     }
 
-    private String parseAlias(String clause, SQL sql) {
-        String regex = String.format("(?<alias>%s)\\.(?<field>\\S+?)(?<after>>|<|\\s|\\)|=)", sql.allAlias());
+    private String parseAlias(String clause, BaseSQL baseSQL, boolean isDelete) {
+        String regex = String.format("(?<alias>%s)\\.(?<field>\\S+?)(?<after>>|<|\\s|\\)|=)", baseSQL.allAlias());
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(clause);
         StringBuffer sb = new StringBuffer();
@@ -94,30 +96,35 @@ public class SqlFormat {
             String field = m.group("field");
             String after = m.group("after");
 
-            Class<?> clazz = sql.getAlias(alias);
-            String name = sql.column(clazz, field).getColumn().name();
+            Class<?> clazz = baseSQL.getAlias(alias);
+            String name = baseSQL.column(clazz, field).getColumn().name();
+            if (isDelete) {
+                m.appendReplacement(sb, String.format("`%s`%s", name, after));
+                continue;
+            }
+
             m.appendReplacement(sb, String.format("%s.`%s`%s", alias, name, after));
         }
         m.appendTail(sb);
         return sb.toString();
     }
 
-    private String parseSelectItem(String item, SQL sql) {
-        Class<?> clazz = sql.getAlias(item);
-        sql.setResultClass(clazz);
+    private String parseSelectItem(String item, SelectSQL selectSql) {
+        Class<?> clazz = selectSql.getAlias(item);
+        selectSql.setResultClass(clazz);
         StringJoiner sj = new StringJoiner(", ");
-        for (ColumnMapping columnMapping : sql.columns(clazz)) {
+        for (ColumnMapping columnMapping : selectSql.columns(clazz)) {
             String name = columnMapping.getColumn().name();
-            sql.addResult(name);
+            selectSql.addResult(name);
             sj.add(String.format("%s.`%s` as `%s`", item, name, name));
         }
         return sj.toString();
     }
 
-    private String parseSelectItemBeforeAs(String item, SQL sql, boolean isResult) {
+    private String parseSelectItemBeforeAs(String item, SelectSQL selectSql, boolean isResult) {
         int indexOfBracket = item.indexOf('(');
         if (indexOfBracket != -1) {
-            return this.parseAlias(item, sql);
+            return this.parseAlias(item, selectSql, false);
         }
 
         int indexOfDot = item.indexOf('.');
@@ -127,17 +134,17 @@ public class SqlFormat {
 
         String beforeDot = item.substring(0, indexOfDot);
         String afterDot = item.substring(indexOfDot + 1);
-        Class<?> clazz = sql.getAlias(beforeDot);
-        String name = sql.column(clazz, afterDot).getColumn().name();
+        Class<?> clazz = selectSql.getAlias(beforeDot);
+        String name = selectSql.column(clazz, afterDot).getColumn().name();
         if (isResult) {
-            sql.setResultClass(clazz);
-            sql.addResult(name);
+            selectSql.setResultClass(clazz);
+            selectSql.addResult(name);
             return String.format("%s.`%s` as `%s`", beforeDot, name, name);
         }
         return String.format("%s.`%s`", beforeDot, name);
     }
 
-    private String parseSelectItemAfterAs(String item, SQL sql) {
+    private String parseSelectItemAfterAs(String item, SelectSQL selectSql) {
         int indexOfDot = item.indexOf('.');
         if (indexOfDot == -1) {
             throw new RuntimeException("jpql error (after as): " + item);
@@ -145,15 +152,15 @@ public class SqlFormat {
 
         String beforeDot = item.substring(0, indexOfDot);
         String afterDot = item.substring(indexOfDot + 1);
-        sql.addMapping(beforeDot);
-        Class<?> clazz = sql.getMapping(beforeDot);
-        String name = sql.column(clazz, afterDot).getColumn().name();
-        sql.setResultClass(clazz);
-        sql.addResult(name);
+        selectSql.addMapping(beforeDot);
+        Class<?> clazz = selectSql.getMapping(beforeDot);
+        String name = selectSql.column(clazz, afterDot).getColumn().name();
+        selectSql.setResultClass(clazz);
+        selectSql.addResult(name);
         return name;
     }
 
-    private void parseSelect(String select, SQL sql) {
+    private void parseSelect(String select, SelectSQL selectSql) {
         StringJoiner stringJoiner = new StringJoiner(", ");
         for (String string : select.split(",")) {
             String trim = string.trim();
@@ -163,35 +170,104 @@ public class SqlFormat {
                     String splitter = trim.substring(matcher.start(), matcher.end());
                     System.out.println(splitter);
                     stringJoiner.add(String.format("%s as `%s`",
-                            this.parseSelectItemBeforeAs(trim.substring(0, matcher.start()), sql, false),
-                            this.parseSelectItemAfterAs(trim.substring(matcher.end()), sql)));
+                            this.parseSelectItemBeforeAs(trim.substring(0, matcher.start()), selectSql, false),
+                            this.parseSelectItemAfterAs(trim.substring(matcher.end()), selectSql)));
                 }
             } else {
                 if (trim.indexOf('.') == -1) {
-                    stringJoiner.add(this.parseSelectItem(trim, sql));
+                    stringJoiner.add(this.parseSelectItem(trim, selectSql));
                 } else {
-                    stringJoiner.add(this.parseSelectItemBeforeAs(trim, sql, true));
+                    stringJoiner.add(this.parseSelectItemBeforeAs(trim, selectSql, true));
                 }
             }
         }
-        sql.setSelect(stringJoiner.toString());
+        selectSql.setSelect(stringJoiner.toString());
     }
 
-    private void parseFrom(String from, SQL sql) {
+    private void parseFrom(String from, SelectSQL selectSql) {
         StringJoiner stringJoiner = new StringJoiner(", ");
         for (String string : from.split(",")) {
             String[] split = string.trim().split("\\s+");
             String className = split[0];
             String alias = split[1];
-            sql.addMapping(className);
-            Class<?> clazz = sql.getMapping(className);
-            sql.setAlias(alias, clazz);
+            selectSql.addMapping(className);
+            Class<?> clazz = selectSql.getMapping(className);
+            selectSql.setAlias(alias, clazz);
             stringJoiner.add(String.format("`%s` %s", DBHelper.tableName(clazz), alias));
         }
-        sql.setFrom(stringJoiner.toString());
+        selectSql.setFrom(stringJoiner.toString());
     }
 
-    public String format(SQL sql) {
-        return sql.getSql();
+    public UpdateSQL parseUpdate(String sql, String[] packageNames) {
+        UpdateSQL updateSQLObject = new UpdateSQL(packageNames);
+
+        Matcher m = updatePattern.matcher(sql);
+
+        String update = this.matcherGroup(m, "update");
+        String set = this.matcherGroup(m, "set");
+        String where = this.matcherGroup(m, "where");
+
+        this.parseUpdate(update, updateSQLObject);
+        this.parseSet(set, updateSQLObject);
+
+        if (where != null) {
+            this.parseWhere(where, updateSQLObject);
+        }
+
+        return updateSQLObject;
+    }
+
+    private void parseWhere(String where, UpdateSQL updateSQL) {
+        updateSQL.setWhere(this.parseAlias(where, updateSQL, false));
+    }
+
+    private void parseSet(String set, UpdateSQL updateSQL) {
+        updateSQL.setSet(this.parseAlias(set, updateSQL, false));
+    }
+
+    private void parseUpdate(String clause, UpdateSQL updateSQL) {
+        updateSQL.setUpdate(this.parseTableName(clause, updateSQL, false));
+    }
+
+    private String parseTableName(String clause, BaseSQL baseSQL, boolean isDelete) {
+        String[] split = clause.trim().split("\\s+");
+        String className = split[0];
+        String alias = split[1];
+
+        baseSQL.addMapping(className);
+        Class<?> clazz = baseSQL.getMapping(className);
+
+        baseSQL.setAlias(alias, clazz);
+
+        if (isDelete) {
+            return String.format("`%s`", DBHelper.tableName(clazz));
+        }
+
+        return String.format("`%s` %s", DBHelper.tableName(clazz), alias);
+    }
+
+    public DeleteSQL parseDelete(String sql, String[] packageNames) {
+        DeleteSQL deleteSQLObject = new DeleteSQL(packageNames);
+
+        Matcher m = deletePattern.matcher(sql);
+
+        String delete = this.matcherGroup(m, "delete");
+        String where = this.matcherGroup(m, "where");
+
+        this.parseDelete(delete, deleteSQLObject);
+
+        if (where != null) {
+            this.parseWhere(where, deleteSQLObject);
+        }
+
+        return deleteSQLObject;
+    }
+
+    private void parseWhere(String where, DeleteSQL deleteSQL) {
+        deleteSQL.setWhere(this.parseAlias(where, deleteSQL, true));
+    }
+
+    private void parseDelete(String clause, DeleteSQL deleteSQL) {
+        deleteSQL.setDelete(this.parseTableName(clause, deleteSQL, true));
     }
 }
