@@ -11,6 +11,7 @@
     <properties>
         <jackson-version>2.5.0</jackson-version>
         <mysqlconnector-version>5.1.34</mysqlconnector-version>
+        <eclipselink-version>2.5.2</eclipselink-version>
         <log4j-version>2.8.2</log4j-version>
     </properties>
 
@@ -44,6 +45,11 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>${mysqlconnector-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>org.eclipse.persistence.jpa</artifactId>
+            <version>${eclipselink-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
