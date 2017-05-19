@@ -78,7 +78,10 @@ public class SimpleServer {
             logger.catching(e);
         }
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> _server.shutdown(5, TimeUnit.SECONDS)));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            _server.shutdown(5, TimeUnit.SECONDS);
+            logger.info("server will shutdown in 5 seconds...");
+        }));
     }
 
     public void shutdown() {

@@ -13,6 +13,10 @@ import tech.caols.infinitely.server.HttpUtils;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class RestHandler implements HttpRequestHandler {
 
@@ -37,7 +41,49 @@ public class RestHandler implements HttpRequestHandler {
 
         Object ret = null;
         try {
-            ret = this.method.invoke(object, request, context);
+
+            List<Object> parameters = new ArrayList<>();
+            for (Class<?> clazz : this.method.getParameterTypes()) {
+                switch (clazz.getTypeName()) {
+                    case "org.apache.http.HttpRequest":
+                        parameters.add(request);
+                        break;
+                    case "org.apache.http.protocol.HttpContext":
+                        parameters.add(context);
+                        break;
+                    case "java.util.Map":
+                        parameters.add(HttpUtils.getParameterMap(request));
+                        break;
+                    default:
+                        parameters.add(HttpUtils.getBodyAsObject(request, clazz));
+                        break;
+                }
+            }
+
+            switch (parameters.size()) {
+                case 0:
+                    ret = this.method.invoke(this.object);
+                    break;
+                case 1:
+                    ret = this.method.invoke(this.object, parameters.get(0));
+                    break;
+                case 2:
+                    ret = this.method.invoke(this.object, parameters.get(0), parameters.get(1));
+                    break;
+                case 3:
+                    ret = this.method.invoke(this.object, parameters.get(0), parameters.get(1), parameters.get(2));
+                    break;
+                case 4:
+                    ret = this.method.invoke(this.object, parameters.get(0),
+                            parameters.get(1), parameters.get(2), parameters.get(3));
+                    break;
+                case 5:
+                    ret = this.method.invoke(this.object, parameters.get(0), parameters.get(1),
+                            parameters.get(2), parameters.get(3), parameters.get(4));
+                    break;
+                default:
+                    throw new RuntimeException("始料未及. parameter count = " + parameters.size());
+            }
         } catch (IllegalAccessException | InvocationTargetException e) {
             logger.catching(e);
         }
