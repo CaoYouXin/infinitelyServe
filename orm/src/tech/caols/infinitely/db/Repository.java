@@ -412,7 +412,6 @@ public class Repository<T, ID> {
             throw new RuntimeException("impossible");
         }
 
-        System.out.println(sql);
         try (Connection conn = DatasourceFactory.getMySQLDataSource().getConnection()) {
 
             if (params.length == 0) {
