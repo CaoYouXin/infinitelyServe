@@ -72,6 +72,7 @@ public class Repository<T, ID> {
         try (Connection conn = DatasourceFactory.getMySQLDataSource().getConnection()) {
             Statement statement = conn.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
+            logger.info(sql);
 
             while (resultSet.next()) {
                 T one = this.buildOne();
@@ -92,8 +93,9 @@ public class Repository<T, ID> {
 
         try (Connection conn = DatasourceFactory.getMySQLDataSource().getConnection()) {
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            logger.info(sql);
 
-            preparedStatement.setInt(1, (Integer) id);
+            this.setPSbyFieldAtIndex(preparedStatement, 1, id, id.getClass().getTypeName());
 
             ResultSet resultSet = preparedStatement.executeQuery();
             if (!resultSet.next()) {
@@ -219,6 +221,7 @@ public class Repository<T, ID> {
 
         try (Connection conn = DatasourceFactory.getMySQLDataSource().getConnection()) {
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            logger.info(sql);
 
             int index = 0;
             for (ColumnMapping column : columns) {
@@ -254,6 +257,7 @@ public class Repository<T, ID> {
 
         try (Connection conn = DatasourceFactory.getMySQLDataSource().getConnection()) {
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            logger.info(sql);
 
             int index = 0;
             for (ColumnMapping column : columns) {
@@ -283,46 +287,46 @@ public class Repository<T, ID> {
         this.setPSbyFieldAtIndex(preparedStatement, index, invokeRet, typeName);
     }
 
-    private void setPSbyFieldAtIndex(PreparedStatement preparedStatement, int index, Object invokeRet, String typeName) throws SQLException {
+    private void setPSbyFieldAtIndex(PreparedStatement preparedStatement, int index, Object param, String typeName) throws SQLException {
         switch (typeName) {
             case "byte":
             case "java.lang.Byte":
-                preparedStatement.setByte(index, (Byte) invokeRet);
+                preparedStatement.setByte(index, (Byte) param);
                 break;
             case "short":
             case "java.lang.Short":
-                preparedStatement.setShort(index, (Short) invokeRet);
+                preparedStatement.setShort(index, (Short) param);
                 break;
             case "int":
             case "java.lang.Integer":
-                preparedStatement.setInt(index, (Integer) invokeRet);
+                preparedStatement.setInt(index, (Integer) param);
                 break;
             case "long":
             case "java.lang.Long":
-                preparedStatement.setLong(index, (Long) invokeRet);
+                preparedStatement.setLong(index, (Long) param);
                 break;
             case "float":
             case "java.lang.Float":
-                preparedStatement.setFloat(index, (Float) invokeRet);
+                preparedStatement.setFloat(index, (Float) param);
                 break;
             case "double":
             case "java.lang.Double":
-                preparedStatement.setDouble(index, (Double) invokeRet);
+                preparedStatement.setDouble(index, (Double) param);
                 break;
             case "java.math.BigDecimal":
-                preparedStatement.setBigDecimal(index, (BigDecimal) invokeRet);
+                preparedStatement.setBigDecimal(index, (BigDecimal) param);
                 break;
             case "java.util.Date":
-                preparedStatement.setTimestamp(index, new Timestamp(((Date) invokeRet).getTime()), calendar);
+                preparedStatement.setTimestamp(index, new Timestamp(((Date) param).getTime()), calendar);
                 break;
             case "java.lang.String":
-                preparedStatement.setString(index, (String) invokeRet);
+                preparedStatement.setString(index, (String) param);
                 break;
             case "java.io.Reader":
-                preparedStatement.setCharacterStream(index, (Reader) invokeRet);
+                preparedStatement.setCharacterStream(index, (Reader) param);
                 break;
             case "java.io.InputStream":
-                preparedStatement.setBinaryStream(index, (InputStream) invokeRet);
+                preparedStatement.setBinaryStream(index, (InputStream) param);
                 break;
             default:
                 System.out.println(typeName);
@@ -356,6 +360,7 @@ public class Repository<T, ID> {
                 }
                 resultSet = preparedStatement.executeQuery();
             }
+            logger.info(selectSql.getSql());
 
             while (resultSet.next()) {
                 T one = this.buildOne();
@@ -384,6 +389,7 @@ public class Repository<T, ID> {
 
         try (Connection conn = DatasourceFactory.getMySQLDataSource().getConnection()) {
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            logger.info(sql);
 
             this.setPSbyFieldAtIndex(one, preparedStatement, 1, this.keyColumn());
 
@@ -416,9 +422,12 @@ public class Repository<T, ID> {
 
             if (params.length == 0) {
                 Statement statement = conn.createStatement();
-                return statement.executeUpdate(sql.getSql()) > 0;
+                int ret = statement.executeUpdate(sql.getSql());
+                logger.info(sql.getSql());
+                return ret > 0;
             } else {
                 PreparedStatement preparedStatement = conn.prepareStatement(sql.getSql());
+                logger.info(sql.getSql());
                 int index = 0;
                 for (Object param : params) {
                     this.setPSbyFieldAtIndex(preparedStatement, ++index, param, param.getClass().getTypeName());

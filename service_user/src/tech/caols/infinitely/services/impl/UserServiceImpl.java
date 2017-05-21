@@ -16,6 +16,7 @@ import tech.caols.infinitely.server.HttpUtils;
 import tech.caols.infinitely.server.JsonRes;
 import tech.caols.infinitely.services.UserService;
 import tech.caols.infinitely.viewmodels.UserLoginView;
+import tech.caols.infinitely.viewmodels.UserRegisterView;
 import tech.caols.infinitely.viewmodels.UserView;
 
 import java.util.Calendar;
@@ -65,7 +66,7 @@ public class UserServiceImpl implements UserService {
         c.add(Calendar.MINUTE, 30);
         token.setUntil(c.getTime());
 
-        token.setToken(SimpleUtils.getMD5(userData.getUserName() + new Date().toString()).toUpperCase());
+        token.setToken(SimpleUtils.getMD5(userName + new Date().toString()).toUpperCase());
         this.tokenRepository.save(token);
 
         UserView userView = new UserView();
@@ -78,7 +79,33 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String captcha(String phone) {
+    public UserLoginView register(UserRegisterView userRegisterView, HttpResponse response) {
+        if (!this.phoneCheck(userRegisterView.getPhone())) {
+            HttpUtils.response(response, JsonRes.getFailJsonRes(Constants.CODE_USED_PHONE, null));
+            return null;
+        }
+
+        Captcha captchaByPhone = this.captchaRepository.findCaptchaByPhone(userRegisterView.getPhone());
+
+        if (!captchaByPhone.getCaptcha().equals(userRegisterView.getCaptcha())) {
+            HttpUtils.response(response, JsonRes.getFailJsonRes(Constants.CODE_WRONG_CAPTCHA, null));
+            return null;
+        }
+
+        UserData userData = new UserData();
+        BeanUtils.copyBean(userRegisterView, userData);
+
+        userData.setCreateTime(new Date());
+        if (!this.userRepository.save(userData)) {
+            HttpUtils.response(response, JsonRes.getFailJsonRes("注册不成功，请寻找原因。"));
+            return null;
+        }
+
+        return this.login(userRegisterView.getUserName(), userRegisterView.getPassword(), response);
+    }
+
+    @Override
+    public boolean captcha(String phone) {
         String captcha = SimpleUtils.getMD5(phone + new Date().toString()).toUpperCase().substring(0, 5);
 
         Captcha captchaObject = new Captcha();
@@ -93,21 +120,55 @@ public class UserServiceImpl implements UserService {
 
         this.captchaRepository.save(captchaObject);
         logger.info(phone + "'s captcha is " + captcha);
-        return captcha;
+        return true;
     }
 
     @Override
-    public UserLoginView register(UserView userView) {
+    public UserView findPassword(String phone, HttpResponse response) {
+        UserData userByPhone = this.userRepository.findUserByPhone(phone);
+        if (userByPhone == null) {
+            HttpUtils.response(response, JsonRes.getFailJsonRes(Constants.CODE_NO_USER, null));
+            return null;
+        }
+
+        if (this.captcha(phone)) {
+            UserView userView = new UserView();
+            BeanUtils.copyBean(userByPhone, userView);
+            return userView;
+        }
+        HttpUtils.response(response, JsonRes.getFailJsonRes("发送验证码失败！"));
         return null;
     }
 
     @Override
-    public UserLoginView findPassword(UserView userView) {
+    public UserLoginView resetPassword(UserRegisterView userRegisterView, HttpResponse response) {
+        Captcha captchaByPhone = this.captchaRepository.findCaptchaByPhone(userRegisterView.getPhone());
+
+        System.out.println(captchaByPhone.getCaptcha());
+        System.out.println(userRegisterView.getCaptcha());
+
+        if (!captchaByPhone.getCaptcha().equals(userRegisterView.getCaptcha())) {
+            HttpUtils.response(response, JsonRes.getFailJsonRes(Constants.CODE_WRONG_CAPTCHA, null));
+            return null;
+        }
+
+        if (this.userRepository.resetPasswordByUserNameAndPhone(userRegisterView.getPassword(),
+                userRegisterView.getUserName(), userRegisterView.getPhone())) {
+            return this.login(userRegisterView.getUserName(), userRegisterView.getPassword(), response);
+        }
+        HttpUtils.response(response, JsonRes.getFailJsonRes("重置密码失败！"));
         return null;
     }
 
     @Override
-    public UserLoginView resetPassword(UserView userView) {
-        return null;
+    public boolean userNameCheck(String userName) {
+        UserData userByUserName = this.userRepository.findUserByUserName(userName);
+        return userByUserName == null;
+    }
+
+    @Override
+    public boolean phoneCheck(String phone) {
+        UserData userData = this.userRepository.findUserByPhone(phone);
+        return userData == null;
     }
 }

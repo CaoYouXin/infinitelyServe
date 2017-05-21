@@ -4,7 +4,6 @@ import java.util.Date;
 
 public class UserView {
 
-    private long id;
     private String userName;
     private String password;
     private String phone;
@@ -14,14 +13,6 @@ public class UserView {
     private int age;
     private String profession;
     private String avatar;
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
 
     public String getUserName() {
         return userName;
@@ -98,8 +89,7 @@ public class UserView {
     @Override
     public String toString() {
         return "UserView{" +
-                "id=" + id +
-                ", userName='" + userName + '\'' +
+                "userName='" + userName + '\'' +
                 ", password='" + password + '\'' +
                 ", phone='" + phone + '\'' +
                 ", createTime=" + createTime +
