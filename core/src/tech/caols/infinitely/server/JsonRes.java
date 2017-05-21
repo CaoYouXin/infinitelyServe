@@ -10,6 +10,10 @@ public class JsonRes<T> {
         return new JsonRes<>(Constants.CODE_VALID, message);
     }
 
+    public static JsonRes getFailJsonRes(int code, String reason) {
+        return new JsonRes<>(code, reason);
+    }
+
     public static JsonRes getFailJsonRes(String reason) {
         return new JsonRes<>(Constants.CODE_INVALID, reason);
     }

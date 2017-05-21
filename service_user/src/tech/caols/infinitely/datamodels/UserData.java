@@ -12,7 +12,7 @@ public class UserData {
 
     @Id
     @Column(name = "id", nullable = false)
-    private long id;
+    private Long id;
 
     @Column(name = "username", nullable = false, length = 16)
     private String userName;
@@ -41,11 +41,11 @@ public class UserData {
     @Column(name = "avatar")
     private String avatar;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -120,4 +120,21 @@ public class UserData {
     public void setAvatar(String avatar) {
         this.avatar = avatar;
     }
+
+    @Override
+    public String toString() {
+        return "UserData{" +
+                "id=" + id +
+                ", userName='" + userName + '\'' +
+                ", password='" + password + '\'' +
+                ", phone='" + phone + '\'' +
+                ", createTime=" + createTime +
+                ", email='" + email + '\'' +
+                ", sex=" + sex +
+                ", age=" + age +
+                ", profession='" + profession + '\'' +
+                ", avatar='" + avatar + '\'' +
+                '}';
+    }
+
 }

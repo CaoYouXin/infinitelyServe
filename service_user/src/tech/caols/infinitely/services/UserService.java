@@ -1,5 +1,6 @@
 package tech.caols.infinitely.services;
 
+import org.apache.http.HttpResponse;
 import tech.caols.infinitely.viewmodels.UserLoginView;
 import tech.caols.infinitely.viewmodels.UserView;
 
@@ -9,14 +10,14 @@ public interface UserService {
 
     List<UserView> listAllUsers();
 
-    UserLoginView login(String userName, String password);
+    UserLoginView login(String userName, String password, HttpResponse response);
 
-    UserLoginView register(UserLoginView userLoginView);
+    UserLoginView register(UserView userView);
 
     String captcha(String phone);
 
-    UserLoginView findPassword(UserLoginView userLoginView);
+    UserLoginView findPassword(UserView userView);
 
-    UserLoginView resetPassword(UserLoginView userLoginView);
+    UserLoginView resetPassword(UserView userView);
 
 }

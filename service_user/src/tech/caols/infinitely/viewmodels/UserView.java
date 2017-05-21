@@ -94,4 +94,21 @@ public class UserView {
     public void setAvatar(String avatar) {
         this.avatar = avatar;
     }
+
+    @Override
+    public String toString() {
+        return "UserView{" +
+                "id=" + id +
+                ", userName='" + userName + '\'' +
+                ", password='" + password + '\'' +
+                ", phone='" + phone + '\'' +
+                ", createTime=" + createTime +
+                ", email='" + email + '\'' +
+                ", sex=" + sex +
+                ", age=" + age +
+                ", profession='" + profession + '\'' +
+                ", avatar='" + avatar + '\'' +
+                '}';
+    }
+
 }

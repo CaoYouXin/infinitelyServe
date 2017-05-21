@@ -25,7 +25,8 @@ public class UserLoginView {
     public String toString() {
         return "UserLoginView{" +
                 "userView=" + userView +
-                ", token='" + token + '\'' +
+                ",\n token='" + token + '\'' +
                 '}';
     }
+
 }

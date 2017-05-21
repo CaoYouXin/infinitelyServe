@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="debug" strict="true" name="MyApp" packages="">
     <Properties>
-        <Property name="fileDirPath">/Users/cls/Dev/Git/personal/infinitely/serve/out/artifacts/service_server_management_jar/target/</Property>
+        <Property name="fileDirPath">/home/oem/vars/jar_dir/service_server_management_jar/target/</Property>
     </Properties>
     <Filter type="ThresholdFilter" level="trace"/>
 

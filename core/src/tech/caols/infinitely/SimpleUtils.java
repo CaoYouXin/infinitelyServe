@@ -1,20 +1,15 @@
 package tech.caols.infinitely;
 
-import jdk.nashorn.internal.codegen.CompilerConstants;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpHost;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import tech.caols.infinitely.config.ShutDownConfig;
-import tech.caols.infinitely.register.Register;
-import tech.caols.infinitely.server.SimpleServer;
-import tech.caols.infinitely.server.Stopper;
 
-import javax.management.relation.RoleUnresolved;
 import java.io.*;
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -152,6 +147,26 @@ public class SimpleUtils {
                 break;
             default:
                 throw new RuntimeException("can not understand command : " + args[0]);
+        }
+    }
+
+    /**
+     * 对字符串md5加密
+     *
+     * @param str
+     * @return
+     */
+    public static String getMD5(String str) {
+        try {
+            // 生成一个MD5加密计算摘要
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            // 计算md5函数
+            md.update(str.getBytes());
+            // digest()最后确定返回md5 hash值，返回值为8为字符串。因为md5 hash值是16位的hex值，实际上就是8位的字符
+            // BigInteger函数则将8位的字符串转换成16位hex值，用字符串来表示；得到字符串形式的hash值
+            return new BigInteger(1, md.digest()).toString(16);
+        } catch (Exception e) {
+            throw new RuntimeException("MD5加密出现错误");
         }
     }
 

@@ -1,0 +1,8 @@
+{
+  "server": {
+    "port": 9000,
+    "docRoot": "/home/oem/vars/html/server_management/"
+  },
+  "serverRoot": "/home/oem/vars/jar_dir/",
+  "uploadRoot": "/home/oem/vars/upload/jar_dir/"
+}

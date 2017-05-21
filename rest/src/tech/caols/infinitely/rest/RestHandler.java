@@ -44,9 +44,13 @@ public class RestHandler implements HttpRequestHandler {
 
             List<Object> parameters = new ArrayList<>();
             for (Class<?> clazz : this.method.getParameterTypes()) {
-                switch (clazz.getTypeName()) {
+                String typeName = clazz.getTypeName();
+                switch (typeName) {
                     case "org.apache.http.HttpRequest":
                         parameters.add(request);
+                        break;
+                    case "org.apache.http.HttpResponse":
+                        parameters.add(response);
                         break;
                     case "org.apache.http.protocol.HttpContext":
                         parameters.add(context);

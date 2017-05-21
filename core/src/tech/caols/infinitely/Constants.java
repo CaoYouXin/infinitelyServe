@@ -23,5 +23,7 @@ public class Constants {
      */
     public static final int CODE_INVALID = 50100;
     public static final int CODE_VALID = 20000;
+    public static final int CODE_NO_USER = 50200;
+    public static final int CODE_WRONG_PWD = 50201;
 
 }
