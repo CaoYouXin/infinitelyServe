@@ -14,6 +14,7 @@ import tech.caols.infinitely.config.ConfigUtil;
 import tech.caols.infinitely.config.ShutDownConfig;
 import tech.caols.infinitely.server.handlers.CfgHandler;
 import tech.caols.infinitely.server.handlers.HttpFileHandler;
+import tech.caols.infinitely.server.handlers.ProxyHandler;
 import tech.caols.infinitely.server.handlers.ShutDownHandler;
 
 import java.io.IOException;
@@ -43,7 +44,7 @@ public class SimpleServer {
                 .setExceptionLogger(new StdErrorExceptionLogger())
                 .registerHandler("*.cfg", new CfgHandler())
                 .registerHandler("/shutdown.cmd", new ShutDownHandler(this))
-                .registerHandler("*", new HttpFileHandler(docRoot));
+                .registerHandler("*", new ProxyHandler(new HttpFileHandler(docRoot)));
     }
 
     public SimpleServer registerHandler(String pattern, HttpRequestHandler handler) {

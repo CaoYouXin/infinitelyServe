@@ -2,6 +2,7 @@ package tech.caols.infinitely.server;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.apache.http.*;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -21,6 +22,9 @@ public class HttpUtils {
     private static final Logger logger = LogManager.getLogger(HttpUtils.class);
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    static {
+        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+    }
 
     public static String getMethod(HttpRequest httpRequest) {
         return httpRequest.getRequestLine().getMethod().toUpperCase(Locale.ROOT);
