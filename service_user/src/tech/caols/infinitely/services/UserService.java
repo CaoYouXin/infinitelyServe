@@ -15,8 +15,6 @@ public interface UserService {
 
     UserLoginView register(UserRegisterView userRegisterView, HttpResponse response);
 
-    boolean captcha(String phone);
-
     UserView findPassword(String phone, HttpResponse response);
 
     UserLoginView resetPassword(UserRegisterView userRegisterView, HttpResponse response);

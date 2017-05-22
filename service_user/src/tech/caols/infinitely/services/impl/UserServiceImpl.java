@@ -6,14 +6,17 @@ import org.apache.logging.log4j.Logger;
 import tech.caols.infinitely.Constants;
 import tech.caols.infinitely.SimpleUtils;
 import tech.caols.infinitely.datamodels.Captcha;
+import tech.caols.infinitely.datamodels.ImageCaptcha;
 import tech.caols.infinitely.datamodels.Token;
 import tech.caols.infinitely.datamodels.UserData;
 import tech.caols.infinitely.repositories.CaptchaRepository;
+import tech.caols.infinitely.repositories.ImageCaptchaRepository;
 import tech.caols.infinitely.repositories.TokenRepository;
 import tech.caols.infinitely.repositories.UserRepository;
 import tech.caols.infinitely.rest.BeanUtils;
 import tech.caols.infinitely.server.HttpUtils;
 import tech.caols.infinitely.server.JsonRes;
+import tech.caols.infinitely.services.CaptchaService;
 import tech.caols.infinitely.services.UserService;
 import tech.caols.infinitely.viewmodels.UserLoginView;
 import tech.caols.infinitely.viewmodels.UserRegisterView;
@@ -31,6 +34,9 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository = new UserRepository();
     private CaptchaRepository captchaRepository = new CaptchaRepository();
     private TokenRepository tokenRepository = new TokenRepository();
+    private ImageCaptchaRepository imageCaptchaRepository = new ImageCaptchaRepository();
+
+    private CaptchaService captchaService = new CaptchaServiceImpl();
 
     @Override
     public List<UserView> listAllUsers() {
@@ -85,9 +91,15 @@ public class UserServiceImpl implements UserService {
             return null;
         }
 
-        Captcha captchaByPhone = this.captchaRepository.findCaptchaByPhone(userRegisterView.getPhone());
+//        Captcha captchaByPhone = this.captchaRepository.findCaptchaByPhone(userRegisterView.getPhone());
+//
+//        if (!captchaByPhone.getCaptcha().equals(userRegisterView.getCaptcha())) {
+//            HttpUtils.response(response, JsonRes.getFailJsonRes(Constants.CODE_WRONG_CAPTCHA, null));
+//            return null;
+//        }
 
-        if (!captchaByPhone.getCaptcha().equals(userRegisterView.getCaptcha())) {
+        ImageCaptcha imageCaptchaByToken = this.imageCaptchaRepository.findImageCaptchaByToken(userRegisterView.getToken());
+        if (!imageCaptchaByToken.getCaptcha().equals(userRegisterView.getCaptcha())) {
             HttpUtils.response(response, JsonRes.getFailJsonRes(Constants.CODE_WRONG_CAPTCHA, null));
             return null;
         }
@@ -105,25 +117,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean captcha(String phone) {
-        String captcha = SimpleUtils.getMD5(phone + new Date().toString()).toUpperCase().substring(0, 5);
-
-        Captcha captchaObject = new Captcha();
-        captchaObject.setPhone(phone);
-        captchaObject.setCaptcha(captcha);
-
-        Date dt = new Date();
-        Calendar c = Calendar.getInstance();
-        c.setTime(dt);
-        c.add(Calendar.MINUTE, 30);
-        captchaObject.setUntil(c.getTime());
-
-        this.captchaRepository.save(captchaObject);
-        logger.info(phone + "'s captcha is " + captcha);
-        return true;
-    }
-
-    @Override
     public UserView findPassword(String phone, HttpResponse response) {
         UserData userByPhone = this.userRepository.findUserByPhone(phone);
         if (userByPhone == null) {
@@ -131,7 +124,7 @@ public class UserServiceImpl implements UserService {
             return null;
         }
 
-        if (this.captcha(phone)) {
+        if (this.captchaService.captcha(phone)) {
             UserView userView = new UserView();
             BeanUtils.copyBean(userByPhone, userView);
             return userView;
@@ -143,9 +136,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserLoginView resetPassword(UserRegisterView userRegisterView, HttpResponse response) {
         Captcha captchaByPhone = this.captchaRepository.findCaptchaByPhone(userRegisterView.getPhone());
-
-        System.out.println(captchaByPhone.getCaptcha());
-        System.out.println(userRegisterView.getCaptcha());
 
         if (!captchaByPhone.getCaptcha().equals(userRegisterView.getCaptcha())) {
             HttpUtils.response(response, JsonRes.getFailJsonRes(Constants.CODE_WRONG_CAPTCHA, null));

@@ -4,7 +4,9 @@ import org.apache.http.HttpResponse;
 import tech.caols.infinitely.rest.Rest;
 import tech.caols.infinitely.rest.RestAPI;
 import tech.caols.infinitely.rest.RestTarget;
+import tech.caols.infinitely.services.CaptchaService;
 import tech.caols.infinitely.services.UserService;
+import tech.caols.infinitely.services.impl.CaptchaServiceImpl;
 import tech.caols.infinitely.services.impl.UserServiceImpl;
 import tech.caols.infinitely.viewmodels.UserLoginView;
 import tech.caols.infinitely.viewmodels.UserNameAndPwd;
@@ -22,11 +24,6 @@ public class UserController {
     @RestAPI(name = "list_all_users", url = "/user/list", target = RestTarget.GET)
     public List<UserView> listAllUsers() {
         return this.userService.listAllUsers();
-    }
-
-    @RestAPI(name = "captcha", url = "/captcha", target = RestTarget.GET)
-    public boolean captcha(Map<String, String> parameters) {
-        return this.userService.captcha(parameters.get("phone"));
     }
 
     @RestAPI(name = "login", url = "/user/login", target = RestTarget.POST)

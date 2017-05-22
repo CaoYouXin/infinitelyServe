@@ -6,6 +6,7 @@ public class UserRegisterView {
     private String password;
     private String phone;
     private String captcha;
+    private String token;
 
     public String getUserName() {
         return userName;
@@ -39,6 +40,14 @@ public class UserRegisterView {
         this.captcha = captcha;
     }
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
     @Override
     public String toString() {
         return "UserRegisterView{" +
@@ -46,6 +55,7 @@ public class UserRegisterView {
                 ", password='" + password + '\'' +
                 ", phone='" + phone + '\'' +
                 ", captcha='" + captcha + '\'' +
+                ", token='" + token + '\'' +
                 '}';
     }
 
