@@ -21,10 +21,12 @@ public class HttpFileHandler implements HttpRequestHandler {
     private static final Logger logger = LogManager.getLogger(HttpFileHandler.class);
 
     private final String docRoot;
+    private final String urlRoot;
 
-    public HttpFileHandler(String docRoot) {
+    public HttpFileHandler(String docRoot, String urlRoot) {
         super();
         this.docRoot = docRoot;
+        this.urlRoot = urlRoot;
     }
 
     @Override
@@ -36,7 +38,8 @@ public class HttpFileHandler implements HttpRequestHandler {
 
         logger.info("Incoming entity content (bytes): " + HttpUtils.getBodyAsBytes(httpRequest).length);
 
-        File file = new File(this.docRoot, HttpUtils.getDecodedUrl(httpRequest));
+        String decodedUrl = HttpUtils.getDecodedUrl(httpRequest);
+        File file = new File(this.docRoot, decodedUrl.substring(this.urlRoot.length()));
         this.processFile(httpResponse, httpContext, file);
     }
 
