@@ -6,7 +6,7 @@ import tech.caols.infinitely.rest.RestAPI;
 import tech.caols.infinitely.rest.RestTarget;
 import tech.caols.infinitely.services.LevelService;
 import tech.caols.infinitely.services.impl.LevelServiceImpl;
-import tech.caols.infinitely.viewmodels.LevelDeletion;
+import tech.caols.infinitely.viewmodels.Deletion;
 import tech.caols.infinitely.viewmodels.LevelView;
 
 import java.util.List;
@@ -27,8 +27,8 @@ public class LevelController {
     }
 
     @RestAPI(name = "delete_level", url = "/level/delete", target = RestTarget.POST)
-    public List<LevelView> delete(LevelDeletion levelDeletion, HttpResponse response) {
-        return this.levelService.delete(levelDeletion.getIds(), response);
+    public List<LevelView> delete(Deletion deletion, HttpResponse response) {
+        return this.levelService.delete(deletion.getIds(), response);
     }
 
 }

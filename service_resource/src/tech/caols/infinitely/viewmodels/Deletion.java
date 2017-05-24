@@ -2,7 +2,7 @@ package tech.caols.infinitely.viewmodels;
 
 import java.util.List;
 
-public class LevelDeletion {
+public class Deletion {
 
     private List<Long> ids;
 

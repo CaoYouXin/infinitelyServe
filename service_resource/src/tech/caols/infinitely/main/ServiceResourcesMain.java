@@ -7,6 +7,7 @@ import tech.caols.infinitely.cmd.Stop;
 import tech.caols.infinitely.config.ConfigUtil;
 import tech.caols.infinitely.config.SimpleConfig;
 import tech.caols.infinitely.controllers.LevelController;
+import tech.caols.infinitely.controllers.LeveledResourceController;
 import tech.caols.infinitely.controllers.ResourceController;
 import tech.caols.infinitely.rest.RestHelper;
 import tech.caols.infinitely.server.SimpleServer;
@@ -25,7 +26,7 @@ public class ServiceResourcesMain {
             simpleServer.registerHandler("/management/*", new HttpFileHandler(config.getManagerRoot(), "/management"));
             RestHelper restHelper = new RestHelper(simpleServer);
             restHelper.addRestObject(new ResourceController(config.getSourceRoot(), config.getServer().getDocRoot()))
-                    .addRestObject(new LevelController());
+                    .addRestObject(new LevelController()).addRestObject(new LeveledResourceController());
 
             simpleServer.start(() -> {
                 logger.info("service [ServiceResourcesMain] started.");
