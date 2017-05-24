@@ -17,7 +17,6 @@ public class FileLister {
     public List<ResourceFile> list() {
         List<ResourceFile> ret = new ArrayList<>();
         this.list(this.root, ret);
-        ret.forEach(System.out::println);
         return ret;
     }
 
@@ -29,6 +28,7 @@ public class FileLister {
 
         for (File file : files) {
             ResourceFile resourceFile = new ResourceFile(file.getName());
+            resourceFile.setDirectory(file.isDirectory());
             list.add(resourceFile);
             if (file.isDirectory()) {
                 List<ResourceFile> ret = new ArrayList<>();

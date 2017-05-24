@@ -1,7 +1,8 @@
 {
   "server": {
     "port": 9002,
-    "docRoot": "/home/oem/vars/html/resource_management/"
+    "docRoot": "/home/oem/vars/html/resources/"
   },
-  "sourceRoot": "/home/oem/vars/html/resource_management_source/"
+  "sourceRoot": "/home/oem/vars/html/resource_management_source/",
+  "managerRoot": "/home/oem/vars/html/resource_management/"
 }

@@ -6,6 +6,12 @@ import java.util.List;
 
 public interface ResourceService {
 
-    List<ResourceFile> listAllSource(String root);
+    List<ResourceFile> listAllResource(String root);
+
+    List<ResourceFile> createDir(String root, String path);
+
+    List<ResourceFile> deleteAll(String root, String path);
+
+    List<ResourceFile> copy(String srcRoot, List<String> srcPaths, String destRoot, String destPath);
 
 }

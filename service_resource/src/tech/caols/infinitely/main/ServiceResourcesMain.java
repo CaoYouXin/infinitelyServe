@@ -6,9 +6,11 @@ import tech.caols.infinitely.SimpleUtils;
 import tech.caols.infinitely.cmd.Stop;
 import tech.caols.infinitely.config.ConfigUtil;
 import tech.caols.infinitely.config.SimpleConfig;
+import tech.caols.infinitely.controllers.LevelController;
 import tech.caols.infinitely.controllers.ResourceController;
 import tech.caols.infinitely.rest.RestHelper;
 import tech.caols.infinitely.server.SimpleServer;
+import tech.caols.infinitely.server.handlers.HttpFileHandler;
 
 public class ServiceResourcesMain {
 
@@ -20,8 +22,10 @@ public class ServiceResourcesMain {
         SimpleUtils.main(args, () -> {
             final Config config = util.getConfigFromFile(util.getRootFileName() + ".json", Config.class);
             SimpleServer simpleServer = new SimpleServer(config.getServer().getPort(), config.getServer().getDocRoot());
+            simpleServer.registerHandler("/management/*", new HttpFileHandler(config.getManagerRoot(), "/management"));
             RestHelper restHelper = new RestHelper(simpleServer);
-            restHelper.addRestObject(new ResourceController(config.getSourceRoot()));
+            restHelper.addRestObject(new ResourceController(config.getSourceRoot(), config.getServer().getDocRoot()))
+                    .addRestObject(new LevelController());
 
             simpleServer.start(() -> {
                 logger.info("service [ServiceResourcesMain] started.");
@@ -33,6 +37,7 @@ public class ServiceResourcesMain {
     static class Config {
         private SimpleConfig server;
         private String sourceRoot;
+        private String managerRoot;
 
         public SimpleConfig getServer() {
             return server;
@@ -48,6 +53,23 @@ public class ServiceResourcesMain {
 
         public void setSourceRoot(String sourceRoot) {
             this.sourceRoot = sourceRoot;
+        }
+
+        public String getManagerRoot() {
+            return managerRoot;
+        }
+
+        public void setManagerRoot(String managerRoot) {
+            this.managerRoot = managerRoot;
+        }
+
+        @Override
+        public String toString() {
+            return "Config{" +
+                    "server=" + server +
+                    ", sourceRoot='" + sourceRoot + '\'' +
+                    ", managerRoot='" + managerRoot + '\'' +
+                    '}';
         }
     }
 
