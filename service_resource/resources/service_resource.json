@@ -1,8 +1,8 @@
 {
   "server": {
     "port": 9002,
-    "docRoot": "/Users/cls/Dev/Git/personal/infinitely/serve/out/testresources/"
+    "docRoot": "/Users/cls/Dev/Git/personal/infinitely/html/resource_management/docs/"
   },
   "sourceRoot": "/Users/cls/Dev/Git/personal/caols.tech/dist/post/",
-  "managerRoot": "/Users/cls/Dev/Git/personal/infinitely/html/resource_management/docs/"
+  "resourceRoot": "/Users/cls/Dev/Git/personal/infinitely/serve/out/testresources/"
 }

@@ -19,6 +19,11 @@ public class Constants {
     public static final String OUT_REMOVE = "remove";
 
     /**
+     * resource service
+     */
+    public static final String USER_LEVELS = "User_Levels";
+
+    /**
      * ret code
      */
     public static final int CODE_INVALID = 50100;

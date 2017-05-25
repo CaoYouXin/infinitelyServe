@@ -1,7 +1,10 @@
 package tech.caols.infinitely.services.impl;
 
 import org.apache.http.HttpResponse;
+import tech.caols.infinitely.consts.ConfigsKeys;
+import tech.caols.infinitely.datamodels.Configs;
 import tech.caols.infinitely.datamodels.LeveledResourceData;
+import tech.caols.infinitely.repositories.ConfigsRepository;
 import tech.caols.infinitely.repositories.LeveledResourceDetailRepository;
 import tech.caols.infinitely.repositories.LeveledResourceRepository;
 import tech.caols.infinitely.rest.BeanUtils;
@@ -11,6 +14,8 @@ import tech.caols.infinitely.services.LeveledResourceService;
 import tech.caols.infinitely.viewmodels.LeveledResourceDetailView;
 import tech.caols.infinitely.viewmodels.LeveledResourceView;
 
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +23,7 @@ public class LeveledResourceServiceImpl implements LeveledResourceService {
 
     private LeveledResourceRepository leveledResourceRepository = new LeveledResourceRepository();
     private LeveledResourceDetailRepository leveledResourceDetailRepository = new LeveledResourceDetailRepository();
+    private ConfigsRepository configsRepository = new ConfigsRepository();
 
     @Override
     public List<LeveledResourceDetailView> findAll() {
@@ -38,6 +44,8 @@ public class LeveledResourceServiceImpl implements LeveledResourceService {
             return null;
         }
 
+        this.saveUpdateDateTime();
+
         return this.findAll();
     }
 
@@ -48,7 +56,20 @@ public class LeveledResourceServiceImpl implements LeveledResourceService {
             return null;
         }
 
+        this.saveUpdateDateTime();
+
         return this.findAll();
+    }
+
+    private void saveUpdateDateTime() {
+        Configs configs = this.configsRepository.findByKey(ConfigsKeys.LastUpdateLeveledResource);
+        if (null == configs) {
+            configs = new Configs();
+            configs.setKey(ConfigsKeys.LastUpdateLeveledResource);
+        }
+
+        configs.setValue(DateFormat.getInstance().format(new Date()));
+        this.configsRepository.save(configs);
     }
 
 }
