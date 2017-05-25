@@ -24,7 +24,7 @@ public class ServiceBlogMain {
 
 
             simpleServer.start(() -> {
-                logger.info("service [ServiceUserMain] started.");
+                logger.info("service [ServiceBlogMain] started.");
                 logger.info(config);
             });
         }, new Stop(util));

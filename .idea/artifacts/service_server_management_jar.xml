@@ -1,0 +1,23 @@
+<component name="ArtifactManager">
+  <artifact build-on-make="true" name="service_server_management:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/service_server_management_jar</output-path>
+    <root id="root">
+      <element id="archive" name="service_server_management.jar">
+        <element id="module-output" name="core" />
+        <element id="module-output" name="service_server_management" />
+      </element>
+      <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.5.0" />
+      <element id="library" level="project" name="Maven: org.apache.logging.log4j:log4j-api:2.8.2" />
+      <element id="library" level="project" name="Maven: com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.5.0" />
+      <element id="library" level="project" name="Maven: org.codehaus.woodstox:stax2-api:3.1.4" />
+      <element id="library" level="project" name="Maven: org.apache.httpcomponents:httpcore:4.4.4" />
+      <element id="library" level="project" name="Maven: commons-io:commons-io:2.4" />
+      <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-core:2.5.0" />
+      <element id="library" level="project" name="Maven: org.apache.logging.log4j:log4j-core:2.8.2" />
+      <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.5.0" />
+      <element id="library" level="project" name="Maven: com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.5.0" />
+      <element id="library" level="project" name="Maven: org.apache.directory.studio:org.apache.commons.io:2.4" />
+      <element id="dir-copy" path="$PROJECT_DIR$/service_server_management/resources" />
+    </root>
+  </artifact>
+</component>
