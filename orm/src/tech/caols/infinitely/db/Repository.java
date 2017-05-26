@@ -441,4 +441,23 @@ public class Repository<T, ID> {
 
         return false;
     }
+
+    public boolean removeAll(List<Long> ids) {
+        StringJoiner stringJoiner = new StringJoiner(", ", "(", ")");
+        ids.stream().map(id -> id + "").forEach(stringJoiner::add);
+        String sql = String.format("Delete From `%s` Where `%s` in %s", this.tableName(),
+                this.keyColumn().getColumn().name(), stringJoiner.toString());
+
+        try (Connection conn = DatasourceFactory.getMySQLDataSource().getConnection()) {
+            Statement statement = conn.createStatement();
+            int update = statement.executeUpdate(sql);
+            logger.info(sql);
+
+            return update > 0;
+        } catch (Exception e) {
+            logger.catching(e);
+        }
+
+        return false;
+    }
 }
