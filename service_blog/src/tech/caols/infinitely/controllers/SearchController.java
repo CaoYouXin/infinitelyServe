@@ -26,7 +26,7 @@ public class SearchController {
 
     @RestAPI(name = "search_post_with_category", url = "/search/post_with_category", target = RestTarget.POST)
     public List<PostView> search4Post(PostSearchWithCategory postSearchWithCategory) {
-        return this.searchService.search4PostWithCategory(postSearchWithCategory.getCategoryStart(), postSearchWithCategory.getCategoryEnd(),
+        return this.searchService.search4Post(postSearchWithCategory.getCategoryStart(), postSearchWithCategory.getCategoryEnd(),
                 postSearchWithCategory.getCategoryKeywords(), postSearchWithCategory.getPostStart(), postSearchWithCategory.getPostEnd(),
                 postSearchWithCategory.getPostKeywords(), postSearchWithCategory.getPlatform());
     }

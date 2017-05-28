@@ -35,7 +35,7 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public List<PostView> search4PostWithCategory(Date categoryStart, Date categoryEnd, List<String> categoryKeywords, Date postStart, Date postEnd, List<String> postKeywords, String platforms) {
+    public List<PostView> search4Post(Date categoryStart, Date categoryEnd, List<String> categoryKeywords, Date postStart, Date postEnd, List<String> postKeywords, String platforms) {
         return this.postDetailRepository.searchWithCategory(categoryStart, categoryEnd, categoryKeywords, postStart, postEnd, postKeywords, platforms).stream().map(postDetailData -> {
             PostView postView = new PostView();
             BeanUtils.copyBean(postDetailData, postView);
