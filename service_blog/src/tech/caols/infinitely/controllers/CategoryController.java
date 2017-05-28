@@ -10,6 +10,7 @@ import tech.caols.infinitely.viewmodels.CategoryView;
 import tech.caols.infinitely.viewmodels.Deletion;
 
 import java.util.List;
+import java.util.Map;
 
 @Rest
 public class CategoryController {
@@ -29,6 +30,11 @@ public class CategoryController {
     @RestAPI(name = "delete_category", url = "/category/delete", target = RestTarget.POST)
     public List<CategoryView> save(Deletion deletion, HttpResponse response) {
         return this.categoryService.delete(deletion.getIds(), response);
+    }
+
+    @RestAPI(name = "fetch_category_by_name", url = "/category/fetch_by_name", target = RestTarget.GET)
+    public CategoryView fetch(Map<String, String> parameters, HttpResponse response) {
+        return this.categoryService.fetch(parameters.get("name"), response);
     }
 
 }

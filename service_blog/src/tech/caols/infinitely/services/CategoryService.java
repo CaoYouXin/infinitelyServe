@@ -9,4 +9,6 @@ import java.util.List;
 
 public interface CategoryService extends BaseService<CategoryData, CategoryView> {
 
+    CategoryView fetch(String name, HttpResponse response);
+
 }

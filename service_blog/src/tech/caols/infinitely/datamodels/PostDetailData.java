@@ -31,6 +31,12 @@ public class PostDetailData {
     @Column(name = "category_name")
     private String categoryName;
 
+    @Column(name = "like")
+    private int like;
+
+    @Column(name = "platform", nullable = false, length = 45)
+    private String platform;
+
     @Column(name = "type", nullable = false, length = 45)
     private String type;
 
@@ -129,5 +135,21 @@ public class PostDetailData {
 
     public void setBrief(String brief) {
         this.brief = brief;
+    }
+
+    public int getLike() {
+        return like;
+    }
+
+    public void setLike(int like) {
+        this.like = like;
+    }
+
+    public String getPlatform() {
+        return platform;
+    }
+
+    public void setPlatform(String platform) {
+        this.platform = platform;
     }
 }

@@ -20,6 +20,9 @@ public class PostView {
     private Long categoryId;
     private String categoryName;
 
+    private int like;
+    private String platform;
+
     private String type;
     private String script;
     private String brief;
@@ -111,5 +114,21 @@ public class PostView {
 
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
+    }
+
+    public int getLike() {
+        return like;
+    }
+
+    public void setLike(int like) {
+        this.like = like;
+    }
+
+    public String getPlatform() {
+        return platform;
+    }
+
+    public void setPlatform(String platform) {
+        this.platform = platform;
     }
 }
