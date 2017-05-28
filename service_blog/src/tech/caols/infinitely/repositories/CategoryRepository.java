@@ -3,7 +3,9 @@ package tech.caols.infinitely.repositories;
 import tech.caols.infinitely.datamodels.CategoryData;
 import tech.caols.infinitely.db.Repository;
 
+import java.util.Date;
 import java.util.List;
+import java.util.StringJoiner;
 
 public class CategoryRepository extends Repository<CategoryData, Long> {
 
@@ -19,6 +21,15 @@ public class CategoryRepository extends Repository<CategoryData, Long> {
             return categoryDataList.get(0);
         }
         return null;
+    }
+
+    public List<CategoryData> search(Date start, Date end, List<String> keywords) {
+        StringJoiner stringJoiner = new StringJoiner(" and ");
+        keywords.forEach(keyword -> {
+            stringJoiner.add(String.format("a.name like '%%%s%%'", keyword));
+        });
+        return super.query(String.format("Select a From CategoryData a Where a.update > ? and a.update < ? and %s", stringJoiner.toString()),
+                new String[]{"tech.caols.infinitely.datamodels."}, start, end);
     }
 
 }
