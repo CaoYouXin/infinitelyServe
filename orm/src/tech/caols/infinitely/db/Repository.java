@@ -173,6 +173,59 @@ public class Repository<T, ID> {
         }
     }
 
+    private void fill(T one, ResultSet resultSet, ColumnMapping column, int index) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, SQLException {
+        String name = column.getField().getName();
+        String setterName = getDateManipulationMethodName(name, "set");
+        Method setterMethod = this.clazz.getDeclaredMethod(setterName, column.getField().getType());
+
+        String typeName = column.getField().getGenericType().getTypeName();
+
+        switch (typeName) {
+            case "byte":
+            case "java.lang.Byte":
+                setterMethod.invoke(one, resultSet.getByte(index));
+                break;
+            case "short":
+            case "java.lang.Short":
+                setterMethod.invoke(one, resultSet.getShort(index));
+                break;
+            case "int":
+            case "java.lang.Integer":
+                setterMethod.invoke(one, resultSet.getInt(index));
+                break;
+            case "long":
+            case "java.lang.Long":
+                setterMethod.invoke(one, resultSet.getLong(index));
+                break;
+            case "float":
+            case "java.lang.Float":
+                setterMethod.invoke(one, resultSet.getFloat(index));
+                break;
+            case "double":
+            case "java.lang.Double":
+                setterMethod.invoke(one, resultSet.getDouble(index));
+                break;
+            case "java.math.BigDecimal":
+                setterMethod.invoke(one, resultSet.getBigDecimal(index));
+                break;
+            case "java.util.Date":
+                setterMethod.invoke(one, resultSet.getTimestamp(index, calendar));
+                break;
+            case "java.lang.String":
+                setterMethod.invoke(one, resultSet.getString(index));
+                break;
+            case "java.io.Reader":
+                setterMethod.invoke(one, resultSet.getCharacterStream(index));
+                break;
+            case "java.io.InputStream":
+                setterMethod.invoke(one, resultSet.getBinaryStream(index));
+                break;
+            default:
+                System.out.println(typeName);
+                break;
+        }
+    }
+
     private String getDateManipulationMethodName(String name, String manipulation) {
         char ch = name.charAt(0);
         String setterName = ch + "";
@@ -268,7 +321,19 @@ public class Repository<T, ID> {
                 this.setPSbyFieldAtIndex(one, preparedStatement, ++index, column);
             }
 
-            return preparedStatement.executeUpdate() > 0;
+            int affectedRows = preparedStatement.executeUpdate();
+            if (affectedRows == 0) {
+                return false;
+            }
+
+            try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    this.fill(one, generatedKeys, this.keyColumn(), 1);
+                    return true;
+                } else {
+                    return false;
+                }
+            }
         } catch (Exception e) {
             logger.catching(e);
         }
