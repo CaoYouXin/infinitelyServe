@@ -8,6 +8,9 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import tech.caols.infinitely.SimpleUtils;
+import tech.caols.infinitely.datamodels.RestRecord;
+import tech.caols.infinitely.repositories.RestRepository;
 import tech.caols.infinitely.server.HttpUtils;
 
 import java.io.IOException;
@@ -15,6 +18,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +29,8 @@ public class RestHandler implements HttpRequestHandler {
     private final Object object;
     private final Method method;
     private final RestAPI rest;
+
+    private RestRepository restRepository = new RestRepository();
 
     public RestHandler(Object object, Method method, RestAPI rest) {
         this.object = object;
@@ -96,7 +102,12 @@ public class RestHandler implements HttpRequestHandler {
             HttpUtils.response(context, ret);
         }
 
-
+        RestRecord restRecord = new RestRecord();
+        restRecord.setRestName(this.rest.name());
+        restRecord.setUrl(this.rest.url());
+        restRecord.setRemoteIp(SimpleUtils.getIpFromRequest(request, context));
+        restRecord.setCreate(new Date());
+        this.restRepository.save(restRecord);
     }
 
 }

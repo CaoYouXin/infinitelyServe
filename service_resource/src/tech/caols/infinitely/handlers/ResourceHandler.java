@@ -11,13 +11,16 @@ import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import tech.caols.infinitely.Constants;
+import tech.caols.infinitely.SimpleUtils;
 import tech.caols.infinitely.consts.ConfigsKeys;
 import tech.caols.infinitely.datamodels.Configs;
 import tech.caols.infinitely.datamodels.LevelData;
 import tech.caols.infinitely.datamodels.LeveledResourceData;
+import tech.caols.infinitely.datamodels.RestRecord;
 import tech.caols.infinitely.repositories.ConfigsRepository;
 import tech.caols.infinitely.repositories.LevelRepository;
 import tech.caols.infinitely.repositories.LeveledResourceRepository;
+import tech.caols.infinitely.repositories.RestRepository;
 import tech.caols.infinitely.server.HttpUtils;
 import tech.caols.infinitely.server.handlers.HttpFileHandler;
 
@@ -36,6 +39,7 @@ public class ResourceHandler implements HttpRequestHandler {
     private ConfigsRepository configsRepository = new ConfigsRepository();
     private LeveledResourceRepository leveledResourceRepository = new LeveledResourceRepository();
     private LevelRepository levelRepository = new LevelRepository();
+    private RestRepository restRepository = new RestRepository();
 
     private final HttpRequestHandler handler;
     private final String docRoot;
@@ -145,6 +149,13 @@ public class ResourceHandler implements HttpRequestHandler {
         }
 
         this.handler.handle(request, response, context);
+
+        RestRecord restRecord = new RestRecord();
+        restRecord.setRestName("RESOURCE SERVING");
+        restRecord.setUrl(decodedUrl);
+        restRecord.setRemoteIp(SimpleUtils.getIpFromRequest(request, context));
+        restRecord.setCreate(new Date());
+        this.restRepository.save(restRecord);
     }
 
 }
