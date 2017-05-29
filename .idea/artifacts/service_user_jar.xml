@@ -8,6 +8,7 @@
         <element id="module-output" name="rest" />
         <element id="module-output" name="third_party" />
         <element id="module-output" name="service_user" />
+        <element id="module-output" name="common" />
       </element>
       <element id="library" level="project" name="Maven: org.eclipse.persistence:javax.persistence:2.1.0" />
       <element id="library" level="project" name="Maven: org.apache.directory.studio:org.apache.commons.io:2.4" />
