@@ -2,7 +2,7 @@ package tech.caols.infinitely.services;
 
 import org.apache.http.HttpResponse;
 import tech.caols.infinitely.datamodels.PostData;
-import tech.caols.infinitely.rest.BaseService;
+import tech.caols.infinitely.base.BaseService;
 import tech.caols.infinitely.viewmodels.PostView;
 
 import java.util.List;

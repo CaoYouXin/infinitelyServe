@@ -3,7 +3,7 @@ package tech.caols.infinitely.services.impl;
 import org.apache.http.HttpResponse;
 import tech.caols.infinitely.datamodels.CategoryData;
 import tech.caols.infinitely.repositories.CategoryRepository;
-import tech.caols.infinitely.rest.BaseServiceImpl;
+import tech.caols.infinitely.base.BaseServiceImpl;
 import tech.caols.infinitely.rest.BeanUtils;
 import tech.caols.infinitely.server.HttpUtils;
 import tech.caols.infinitely.server.JsonRes;

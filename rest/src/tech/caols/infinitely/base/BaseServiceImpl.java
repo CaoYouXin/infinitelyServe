@@ -1,8 +1,9 @@
-package tech.caols.infinitely.rest;
+package tech.caols.infinitely.base;
 
 import org.apache.http.HttpResponse;
 import tech.caols.infinitely.db.Repository;
 import tech.caols.infinitely.db.helper.DBHelper;
+import tech.caols.infinitely.rest.BeanUtils;
 import tech.caols.infinitely.server.HttpUtils;
 import tech.caols.infinitely.server.JsonRes;
 

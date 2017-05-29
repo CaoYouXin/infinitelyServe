@@ -95,6 +95,8 @@ public class RestHandler implements HttpRequestHandler {
         if (ret != null) {
             HttpUtils.response(context, ret);
         }
+
+
     }
 
 }

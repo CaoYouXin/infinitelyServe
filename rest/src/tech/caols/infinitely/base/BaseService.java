@@ -1,4 +1,4 @@
-package tech.caols.infinitely.rest;
+package tech.caols.infinitely.base;
 
 import org.apache.http.HttpResponse;
 
