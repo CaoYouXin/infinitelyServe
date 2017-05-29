@@ -28,8 +28,8 @@ public class FeedbackServiceImpl implements FeedbackService {
     private UserRepository userRepository = new UserRepository();
 
     @Override
-    public synchronized Integer like(Long id, HttpResponse response) {
-        PostData postData = this.postRepository.find(id);
+    public synchronized Integer like(Long postId, HttpResponse response) {
+        PostData postData = this.postRepository.find(postId);
         if (null == postData) {
             HttpUtils.response(response, JsonRes.getFailJsonRes("没有相应Post！"));
             return null;

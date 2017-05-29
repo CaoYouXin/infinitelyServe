@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface FeedbackService {
 
-    Integer like(Long id, HttpResponse response);
+    Integer like(Long postId, HttpResponse response);
 
     List<List<CommentView>> listComments(Long postId, HttpResponse response);
 
