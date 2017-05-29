@@ -11,16 +11,14 @@ import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import tech.caols.infinitely.Constants;
-import tech.caols.infinitely.config.PrePostConfig;
+import tech.caols.infinitely.config.PostConfig;
+import tech.caols.infinitely.config.PreConfig;
 import tech.caols.infinitely.server.HttpUtils;
 import tech.caols.infinitely.server.JsonRes;
 import tech.caols.infinitely.server.SimplePool;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ProxyHandler implements HttpRequestHandler {
 
@@ -80,22 +78,30 @@ public class ProxyHandler implements HttpRequestHandler {
             throw new MethodNotSupportedException(HttpUtils.getMethod(httpRequest) + " method not supported");
         }
 
-        boolean abort = false;
-        BasicPoolEntry connEntry = null;
         ObjectMapper objectMapper = new ObjectMapper();
-
         String url = HttpUtils.getSimpleDecodedUrl(httpRequest);
-        PrePostConfig.Config config = PrePostConfig.get().getConfig(url, Constants.PRE_PROCESSOR);
+        Map<String, String> parameterMap = HttpUtils.getParameterMap(httpRequest);
 
-        if (null != config) {
-            connEntry = SimplePool.get().getConn(config.getHost());
+        for (PreConfig config : PreConfig.match(url)) {
+            BasicPoolEntry connEntry = SimplePool.get().getConn(config.getHost());
             HttpClientConnection conn = connEntry.getConnection();
             HttpCoreContext coreContext = HttpCoreContext.create();
             coreContext.setTargetHost(config.getHost());
 
             Map map = new HashMap();
+            if (config.getParameters() != null && config.getParameters().size() > 0) {
+                Map parameters = new HashMap();
+                for (String param : config.getParameters()) {
+                    parameters.put(param, parameterMap.get(param));
+                }
+                map.put("parameters", parameters);
+            }
 
-            BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/pre_request");
+            if (config.isNeedBody()) {
+                map.put("body", HttpUtils.getBodyAsString(httpRequest));
+            }
+
+            BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", config.getUrl());
             request.setEntity(new StringEntity(objectMapper.writeValueAsString(map), ContentType.APPLICATION_JSON));
             logger.info(">> Request URI: " + request.getRequestLine().getUri());
 
@@ -107,6 +113,7 @@ public class ProxyHandler implements HttpRequestHandler {
             String preRet = EntityUtils.toString(response.getEntity());
             logger.info(preRet);
             logger.info("==============");
+            SimplePool.get().release(connEntry);
 
             HashMap preRetObject = objectMapper.readValue(preRet, HashMap.class);
             if (preRetObject.get(Constants.CODE).equals(Constants.INVALID)) {
@@ -132,36 +139,69 @@ public class ProxyHandler implements HttpRequestHandler {
 
         this.handler.handle(httpRequest, httpResponse, httpContext);
 
-//        config = PrePostConfig.get().getConfig(url, Register.POST_PROCESSOR);
-//        if (null != config) {
-//            connEntry = SimplePool.get().getConn(config.getHost());
-//            HttpClientConnection conn = connEntry.getConnection();
-//
-//            this.coreContext.setTargetHost(config.getHost());
-//
-//            Map map = new HashMap();
-//
-//            BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/pre_request");
-//            request.setEntity(new StringEntity(new ObjectMapper().writeValueAsString(map), ContentType.APPLICATION_JSON));
-//            logger.info(">> Request URI: " + request.getRequestLine().getUri());
-//
-//            httpExecutor.preProcess(request, httpproc, coreContext);
-//            HttpResponse response = httpExecutor.execute(request, conn, coreContext);
-//            httpExecutor.postProcess(response, httpproc, coreContext);
-//
-//            logger.info("<< Response: " + response.getStatusLine());
-//            logger.info(EntityUtils.toString(response.getEntity()));
-//            logger.info("==============");
-//        }
+        for (PostConfig config : PostConfig.match(url)) {
+            BasicPoolEntry connEntry = SimplePool.get().getConn(config.getHost());
+            HttpClientConnection conn = connEntry.getConnection();
+            HttpCoreContext coreContext = HttpCoreContext.create();
+            coreContext.setTargetHost(config.getHost());
 
-        if (null != connEntry) {
+            Map reqMap = new HashMap();
+            if (config.getParameters() != null && config.getParameters().size() > 0) {
+                Map parameters = new HashMap();
+                for (String param : config.getParameters()) {
+                    parameters.put(param, parameterMap.get(param));
+                }
+                reqMap.put("parameters", parameters);
+            }
+
+            if (config.isNeedBody()) {
+                reqMap.put("body", HttpUtils.getBodyAsString(httpRequest));
+            }
+
+            if (config.isNeedRetObj()) {
+                Object retObject = httpContext.getAttribute(Constants.RET_OBJECT);
+                if (null != retObject) {
+                    reqMap.put("ret", objectMapper.writeValueAsString(retObject));
+                }
+            }
+
+            BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", config.getUrl());
+            request.setEntity(new StringEntity(objectMapper.writeValueAsString(reqMap), ContentType.APPLICATION_JSON));
+            logger.info(">> Request URI: " + request.getRequestLine().getUri());
+
+            this.httpExecutor.preProcess(request, this.httpproc, coreContext);
+            HttpResponse response = this.httpExecutor.execute(request, conn, coreContext);
+            this.httpExecutor.postProcess(response, this.httpproc, coreContext);
+
+            logger.info("<< Response: " + response.getStatusLine());
+            String postRet = EntityUtils.toString(response.getEntity());
+            logger.info(postRet);
+            logger.info("==============");
             SimplePool.get().release(connEntry);
+
+            HashMap postRetObject = objectMapper.readValue(postRet, HashMap.class);
+            if (postRetObject.get(Constants.CODE).equals(Constants.INVALID)) {
+
+                HttpUtils.response(httpResponse, JsonRes.getFailJsonRes("one of the post processors commands returning a fail."));
+                return;
+            } else if (postRetObject.get(Constants.CODE).equals(Constants.REPLACE_VALID)) {
+
+                httpContext.setAttribute(Constants.RET_OBJECT_STRING, postRetObject.get(Constants.BODY));
+            }
         }
 
-        Object retObject = httpContext.getAttribute(Constants.RET_OBJECT);
-        if (null != retObject) {
-            HttpUtils.response(httpResponse, new JsonRes<>(Constants.CODE_VALID, retObject));
+        Object retObjectString = httpContext.getAttribute(Constants.RET_OBJECT_STRING);
+        if (null != retObjectString) {
+
+            HttpUtils.response(httpResponse, (String) retObjectString);
+        } else {
+
+            Object retObject = httpContext.getAttribute(Constants.RET_OBJECT);
+            if (null != retObject) {
+                HttpUtils.response(httpResponse, new JsonRes<>(Constants.CODE_VALID, retObject));
+            }
         }
+
     }
 
 }

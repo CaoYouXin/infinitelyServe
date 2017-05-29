@@ -152,11 +152,20 @@ public class HttpUtils {
         }
     }
 
+    public static void response(HttpResponse httpResponse, String jsonString) {
+        httpResponse.setStatusCode(HttpStatus.SC_OK);
+        logger.info("returning --->" + jsonString);
+        httpResponse.setEntity(new StringEntity(
+                jsonString,
+                ContentType.APPLICATION_JSON
+        ));
+    }
+
     public static void response(HttpResponse httpResponse, JsonRes jsonRes) {
         httpResponse.setStatusCode(HttpStatus.SC_OK);
         try {
             String retString = objectMapper.writeValueAsString(jsonRes);
-            logger.info("returning --->c" + retString);
+            logger.info("returning --->" + retString);
             httpResponse.setEntity(new StringEntity(
                     retString,
                     ContentType.APPLICATION_JSON

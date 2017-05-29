@@ -3,18 +3,14 @@ package tech.caols.infinitely.main;
 import org.apache.http.HttpHost;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import tech.caols.infinitely.CallBack;
 import tech.caols.infinitely.CallBacks;
 import tech.caols.infinitely.Constants;
 import tech.caols.infinitely.SimpleUtils;
 import tech.caols.infinitely.cmd.Stop;
 import tech.caols.infinitely.config.ConfigUtil;
-import tech.caols.infinitely.config.ShutDownConfig;
 import tech.caols.infinitely.config.SimpleConfig;
 import tech.caols.infinitely.hanlders.PreHandler;
-import tech.caols.infinitely.register.Register;
 import tech.caols.infinitely.server.SimpleServer;
-import tech.caols.infinitely.server.Stopper;
 
 import java.util.Arrays;
 import java.util.List;

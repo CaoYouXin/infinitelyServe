@@ -12,9 +12,12 @@ public class Constants {
      * proxy handler
      */
     public static final String RET_OBJECT = "ret-object";
+    public static final String RET_OBJECT_STRING = "ret-object-string";
     public static final String CODE = "code";
+    public static final String BODY = "body";
     public static final String INVALID = "Invalid";
     public static final String VALID = "Valid";
+    public static final String REPLACE_VALID = "Replace_Valid";
     public static final String OUT_SET = "set";
     public static final String OUT_REMOVE = "remove";
 

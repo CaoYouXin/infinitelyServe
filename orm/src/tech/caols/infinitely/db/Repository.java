@@ -115,7 +115,7 @@ public class Repository<T, ID> {
     private void fill(T one, ResultSet resultSet) throws IllegalAccessException, SQLException, NoSuchMethodException, InvocationTargetException {
         List<ColumnMapping> columns = this.columns();
         for (ColumnMapping column : columns) {
-            fill(one, resultSet, column);
+            this.fill(one, resultSet, column);
         }
     }
 
@@ -127,45 +127,93 @@ public class Repository<T, ID> {
         String columnName = column.getColumn().name();
         String typeName = column.getField().getGenericType().getTypeName();
 
+        this.fill(typeName, one, setterMethod, resultSet, false, null, columnName);
+    }
+
+    private void fill(String typeName, T one, Method setterMethod, ResultSet resultSet, boolean isIntParam, Integer index, String columnName) throws SQLException, InvocationTargetException, IllegalAccessException {
         switch (typeName) {
             case "byte":
             case "java.lang.Byte":
-                setterMethod.invoke(one, resultSet.getByte(columnName));
+                if (isIntParam) {
+                    setterMethod.invoke(one, resultSet.getByte(index));
+                } else {
+                    setterMethod.invoke(one, resultSet.getByte(columnName));
+                }
                 break;
             case "short":
             case "java.lang.Short":
-                setterMethod.invoke(one, resultSet.getShort(columnName));
+                if (isIntParam) {
+                    setterMethod.invoke(one, resultSet.getShort(index));
+                } else {
+                    setterMethod.invoke(one, resultSet.getShort(columnName));
+                }
                 break;
             case "int":
             case "java.lang.Integer":
-                setterMethod.invoke(one, resultSet.getInt(columnName));
+                if (isIntParam) {
+                    setterMethod.invoke(one, resultSet.getInt(index));
+                } else {
+                    setterMethod.invoke(one, resultSet.getInt(columnName));
+                }
                 break;
             case "long":
             case "java.lang.Long":
-                setterMethod.invoke(one, resultSet.getLong(columnName));
+                if (isIntParam) {
+                    setterMethod.invoke(one, resultSet.getLong(index));
+                } else {
+                    setterMethod.invoke(one, resultSet.getLong(columnName));
+                }
                 break;
             case "float":
             case "java.lang.Float":
-                setterMethod.invoke(one, resultSet.getFloat(columnName));
+                if (isIntParam) {
+                    setterMethod.invoke(one, resultSet.getFloat(index));
+                } else {
+                    setterMethod.invoke(one, resultSet.getFloat(columnName));
+                }
                 break;
             case "double":
             case "java.lang.Double":
-                setterMethod.invoke(one, resultSet.getDouble(columnName));
+                if (isIntParam) {
+                    setterMethod.invoke(one, resultSet.getDouble(index));
+                } else {
+                    setterMethod.invoke(one, resultSet.getDouble(columnName));
+                }
                 break;
             case "java.math.BigDecimal":
-                setterMethod.invoke(one, resultSet.getBigDecimal(columnName));
+                if (isIntParam) {
+                    setterMethod.invoke(one, resultSet.getBigDecimal(index));
+                } else {
+                    setterMethod.invoke(one, resultSet.getBigDecimal(columnName));
+                }
                 break;
             case "java.util.Date":
-                setterMethod.invoke(one, resultSet.getTimestamp(columnName, calendar));
+                if (isIntParam) {
+                    setterMethod.invoke(one, resultSet.getTimestamp(index, calendar));
+                } else {
+                    setterMethod.invoke(one, resultSet.getTimestamp(columnName, calendar));
+                }
                 break;
             case "java.lang.String":
-                setterMethod.invoke(one, resultSet.getString(columnName));
+                if (isIntParam) {
+                    setterMethod.invoke(one, resultSet.getString(index));
+                } else {
+                    setterMethod.invoke(one, resultSet.getString(columnName));
+                }
                 break;
             case "java.io.Reader":
-                setterMethod.invoke(one, resultSet.getCharacterStream(columnName));
+                if (isIntParam) {
+                    setterMethod.invoke(one, resultSet.getCharacterStream(index));
+                } else {
+                    setterMethod.invoke(one, resultSet.getCharacterStream(columnName));
+                }
                 break;
             case "java.io.InputStream":
-                setterMethod.invoke(one, resultSet.getBinaryStream(columnName));
+                if (isIntParam) {
+                    setterMethod.invoke(one, resultSet.getBinaryStream(index));
+                } else {
+                    setterMethod.invoke(one, resultSet.getBinaryStream(columnName));
+                }
                 break;
             default:
                 System.out.println(typeName);
@@ -180,50 +228,7 @@ public class Repository<T, ID> {
 
         String typeName = column.getField().getGenericType().getTypeName();
 
-        switch (typeName) {
-            case "byte":
-            case "java.lang.Byte":
-                setterMethod.invoke(one, resultSet.getByte(index));
-                break;
-            case "short":
-            case "java.lang.Short":
-                setterMethod.invoke(one, resultSet.getShort(index));
-                break;
-            case "int":
-            case "java.lang.Integer":
-                setterMethod.invoke(one, resultSet.getInt(index));
-                break;
-            case "long":
-            case "java.lang.Long":
-                setterMethod.invoke(one, resultSet.getLong(index));
-                break;
-            case "float":
-            case "java.lang.Float":
-                setterMethod.invoke(one, resultSet.getFloat(index));
-                break;
-            case "double":
-            case "java.lang.Double":
-                setterMethod.invoke(one, resultSet.getDouble(index));
-                break;
-            case "java.math.BigDecimal":
-                setterMethod.invoke(one, resultSet.getBigDecimal(index));
-                break;
-            case "java.util.Date":
-                setterMethod.invoke(one, resultSet.getTimestamp(index, calendar));
-                break;
-            case "java.lang.String":
-                setterMethod.invoke(one, resultSet.getString(index));
-                break;
-            case "java.io.Reader":
-                setterMethod.invoke(one, resultSet.getCharacterStream(index));
-                break;
-            case "java.io.InputStream":
-                setterMethod.invoke(one, resultSet.getBinaryStream(index));
-                break;
-            default:
-                System.out.println(typeName);
-                break;
-        }
+        this.fill(typeName, one, setterMethod, resultSet, true, index, null);
     }
 
     private String getDateManipulationMethodName(String name, String manipulation) {

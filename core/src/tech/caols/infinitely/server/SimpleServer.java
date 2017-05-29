@@ -42,7 +42,7 @@ public class SimpleServer {
                 .setServerInfo("Test/1.1")
                 .setSocketConfig(socketConfig)
                 .setExceptionLogger(new StdErrorExceptionLogger())
-                .registerHandler("*.cfg", new CfgHandler())
+                .registerHandler("/hook.cfg", new CfgHandler())
                 .registerHandler("/shutdown.cmd", new ShutDownHandler(this))
                 .registerHandler("*", new ProxyHandler(new HttpFileHandler(docRoot, "")));
     }

@@ -1,14 +1,16 @@
 package tech.caols.infinitely.server.handlers;
 
-import org.apache.http.*;
+import org.apache.http.HttpException;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.MethodNotSupportedException;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import tech.caols.infinitely.Constants;
-import tech.caols.infinitely.config.PrePostConfig;
+import tech.caols.infinitely.config.PostConfig;
+import tech.caols.infinitely.config.PreConfig;
 import tech.caols.infinitely.server.HttpUtils;
-import tech.caols.infinitely.server.JsonRes;
 
 import java.io.IOException;
 import java.util.Map;
@@ -25,28 +27,20 @@ public class CfgHandler implements HttpRequestHandler {
         }
 
         Map<String, String> parameterMap = HttpUtils.getParameterMap(httpRequest);
-        String loc =  parameterMap.get("loc"),
-                port =  parameterMap.get("port"),
-                url =  parameterMap.get("url"),
-                needBody = parameterMap.get("needBody"),
-                parameters = parameterMap.get("parameters");
 
-        if (loc != null && port != null && url != null) {
-            String decodedUrl = HttpUtils.getDecodedUrl(httpRequest);
-            String type = decodedUrl.substring(1, decodedUrl.indexOf(".cfg?"));
-            PrePostConfig.get().setHost(url, type, new HttpHost(loc, Integer.parseInt(port)));
-            if (needBody != null) {
-                PrePostConfig.get().setNeedBody(url, type, Boolean.parseBoolean(needBody));
-            }
-            if (parameters != null) {
-                PrePostConfig.get().setParameters(url, type, HttpUtils.getListParameter(parameters));
-            }
-
-            HttpUtils.response(httpResponse, new JsonRes(Constants.CODE_VALID));
-            logger.info(PrePostConfig.get());
-        } else {
-            throw new RuntimeException("wrong config url pattern.");
+        switch(parameterMap.get("type")) {
+            case "PRE":
+                PreConfig preConfig = HttpUtils.getBodyAsObject(httpRequest, PreConfig.class);
+                PreConfig.addConfig(preConfig);
+                break;
+            case "POST":
+                PostConfig postConfig = HttpUtils.getBodyAsObject(httpRequest, PostConfig.class);
+                PostConfig.addConfig(postConfig);
+                break;
+            default:
+                throw new RuntimeException("unknown type : " + parameterMap.get("type"));
         }
+
     }
 
 }
