@@ -4,11 +4,8 @@ import org.apache.http.HttpResponse;
 import tech.caols.infinitely.rest.Rest;
 import tech.caols.infinitely.rest.RestAPI;
 import tech.caols.infinitely.rest.RestTarget;
-import tech.caols.infinitely.services.CategoryService;
 import tech.caols.infinitely.services.PostService;
-import tech.caols.infinitely.services.impl.CategoryServiceImpl;
 import tech.caols.infinitely.services.impl.PostServiceImpl;
-import tech.caols.infinitely.viewmodels.CategoryView;
 import tech.caols.infinitely.viewmodels.Deletion;
 import tech.caols.infinitely.viewmodels.PostView;
 
