@@ -17,7 +17,7 @@ public class RestRecord {
     @Column(name = "remote_ip")
     private String remoteIp;
 
-    @Column(name = "rest_name")
+    @Column(name = "rest_name", length = 45)
     private String restName;
 
     @Column(name = "url")

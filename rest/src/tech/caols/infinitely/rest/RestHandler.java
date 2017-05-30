@@ -8,19 +8,24 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import tech.caols.infinitely.Constants;
 import tech.caols.infinitely.SimpleUtils;
+import tech.caols.infinitely.consts.ConfigsKeys;
+import tech.caols.infinitely.datamodels.Configs;
 import tech.caols.infinitely.datamodels.RestRecord;
+import tech.caols.infinitely.datamodels.Token;
+import tech.caols.infinitely.repositories.ConfigsRepository;
 import tech.caols.infinitely.repositories.RestRepository;
+import tech.caols.infinitely.repositories.TokenRepository;
 import tech.caols.infinitely.server.HttpUtils;
+import tech.caols.infinitely.server.JsonRes;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class RestHandler implements HttpRequestHandler {
 
@@ -31,6 +36,8 @@ public class RestHandler implements HttpRequestHandler {
     private final RestAPI rest;
 
     private RestRepository restRepository = new RestRepository();
+    private TokenRepository tokenRepository = new TokenRepository();
+    private ConfigsRepository configsRepository = new ConfigsRepository();
 
     public RestHandler(Object object, Method method, RestAPI rest) {
         this.object = object;
@@ -43,6 +50,28 @@ public class RestHandler implements HttpRequestHandler {
 
         if (!this.rest.target().name().equals(HttpUtils.getMethod(request))) {
             throw new MethodNotSupportedException("not a " + this.rest.target().name() + ". but a " + HttpUtils.getMethod(request));
+        }
+
+        if (this.rest.auth()) {
+            String token = HttpUtils.getParameterMap(request).get("user_token");
+            if (null == token) {
+                HttpUtils.response(response, JsonRes.getFailJsonRes(Constants.CODE_UNAUTHED, null));
+                return;
+            }
+
+            Token tokenByToken = this.tokenRepository.findTokenByToken(token);
+            if (null == tokenByToken) {
+                HttpUtils.response(response, JsonRes.getFailJsonRes(Constants.CODE_UNAUTHED, null));
+                return;
+            }
+
+            if (this.rest.adminAuth()) {
+                Configs configs = this.configsRepository.findByKey(ConfigsKeys.AdminUserId);
+                if (Long.parseLong(configs.getValue()) != tokenByToken.getUserId()) {
+                    HttpUtils.response(response, JsonRes.getFailJsonRes(Constants.CODE_UNPRIVILEGED, null));
+                    return;
+                }
+            }
         }
 
         Object ret = null;

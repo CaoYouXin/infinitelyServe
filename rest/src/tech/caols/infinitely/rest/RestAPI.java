@@ -11,6 +11,8 @@ public @interface RestAPI {
 
     String name();
     String url();
+    boolean auth() default false;
+    boolean adminAuth() default false;
     RestTarget target();
 
 }

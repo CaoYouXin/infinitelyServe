@@ -35,5 +35,7 @@ public class Constants {
     public static final int CODE_WRONG_PWD = 50201;
     public static final int CODE_WRONG_CAPTCHA = 50202;
     public static final int CODE_USED_PHONE = 50203;
+    public static final int CODE_UNAUTHED = 50300;
+    public static final int CODE_UNPRIVILEGED = 50301;
 
 }
