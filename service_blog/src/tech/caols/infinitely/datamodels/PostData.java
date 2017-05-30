@@ -47,6 +47,9 @@ public class PostData {
     @Column(name = "brief")
     private String brief;
 
+    @Column(name = "disabled")
+    private byte disabled;
+
     public Long getId() {
         return id;
     }
@@ -141,5 +144,13 @@ public class PostData {
 
     public void setPlatform(String platform) {
         this.platform = platform;
+    }
+
+    public byte getDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(byte disabled) {
+        this.disabled = disabled;
     }
 }

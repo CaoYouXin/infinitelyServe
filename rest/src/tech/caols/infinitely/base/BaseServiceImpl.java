@@ -54,4 +54,16 @@ public class BaseServiceImpl<D, V> implements BaseService<D, V> {
 
         return this.list();
     }
+
+    @Override
+    public List<V> softDelete(List<Long> ids, HttpResponse response) {
+        if (!this.repository.softRemoveAll(ids)) {
+            HttpUtils.response(response, JsonRes.getFailJsonRes(String.format("删除%s失败! ", dClass.getName())));
+            return null;
+        }
+
+        return this.list();
+    }
+
+
 }

@@ -12,4 +12,6 @@ public interface BaseService<D, V> {
 
     List<V> delete(List<Long> ids, HttpResponse response);
 
+    List<V> softDelete(List<Long> ids, HttpResponse response);
+
 }

@@ -29,6 +29,9 @@ public class CategoryData {
     @Column(name = "script", nullable = false)
     private String script;
 
+    @Column(name = "disabled")
+    private byte disabled;
+
     public Long getId() {
         return id;
     }
@@ -75,5 +78,13 @@ public class CategoryData {
 
     public void setScript(String script) {
         this.script = script;
+    }
+
+    public byte getDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(byte disabled) {
+        this.disabled = disabled;
     }
 }

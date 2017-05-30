@@ -29,7 +29,7 @@ public class CategoryController {
 
     @RestAPI(name = "delete_category", url = "/category/delete", target = RestTarget.POST)
     public List<CategoryView> save(Deletion deletion, HttpResponse response) {
-        return this.categoryService.delete(deletion.getIds(), response);
+        return this.categoryService.softDelete(deletion.getIds(), response);
     }
 
     @RestAPI(name = "fetch_category_by_name", url = "/category/fetch_by_name", target = RestTarget.GET)

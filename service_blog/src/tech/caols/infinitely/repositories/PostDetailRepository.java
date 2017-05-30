@@ -20,7 +20,8 @@ public class PostDetailRepository extends Repository<PostDetailData, Long> {
                         " b.name PostDetailData.categoryName, a.type PostDetailData.type," +
                         " a.script PostDetailData.script, a.screenshot PostDetailData.screenshot," +
                         " a.brief PostDetailData.brief, a.like PostDetailData.like," +
-                        " a.platform PostDetailData.platform From PostData a, CategoryData b Where a.categoryId = b.id",
+                        " a.platform PostDetailData.platform From PostData a, CategoryData b" +
+                        " Where a.categoryId = b.id and a.disabled = 0",
                 new String[]{"tech.caols.infinitely.datamodels."});
     }
 
@@ -35,7 +36,8 @@ public class PostDetailRepository extends Repository<PostDetailData, Long> {
                         " b.name PostDetailData.categoryName, a.type PostDetailData.type," +
                         " a.script PostDetailData.script, a.screenshot PostDetailData.screenshot," +
                         " a.brief PostDetailData.brief, a.like PostDetailData.like," +
-                        " a.platform PostDetailData.platform From PostData a, CategoryData b Where a.categoryId = b.id" +
+                        " a.platform PostDetailData.platform From PostData a, CategoryData b" +
+                        " Where a.categoryId = b.id and a.disabled = 0" +
                         " and a.platform in %s and b.name = ?", stringJoiner.toString()),
                 new String[]{"tech.caols.infinitely.datamodels."}, category);
     }
@@ -48,7 +50,7 @@ public class PostDetailRepository extends Repository<PostDetailData, Long> {
                         " a.script PostDetailData.script, a.screenshot PostDetailData.screenshot," +
                         " a.brief PostDetailData.brief, a.like PostDetailData.like," +
                         " a.platform PostDetailData.platform From PostData a, CategoryData b" +
-                        " Where a.categoryId = b.id and a.name = ?",
+                        " Where a.categoryId = b.id and a.name = ? and a.disabled = 0",
                 new String[]{"tech.caols.infinitely.datamodels."}, name);
 
         if (postDetailDataList.size() > 0) {
@@ -76,7 +78,7 @@ public class PostDetailRepository extends Repository<PostDetailData, Long> {
                         " a.brief PostDetailData.brief, a.like PostDetailData.like," +
                         " a.platform PostDetailData.platform From PostData a, CategoryData b" +
                         " Where a.categoryId = b.id and a.update > ? and a.update < ? and" +
-                        " a.platform in %s and %s", platformsStringJoiner.toString(), keywordsStringJoiner.toString()),
+                        " a.platform in %s and %s and a.disabled = 0", platformsStringJoiner.toString(), keywordsStringJoiner.toString()),
                 new String[]{"tech.caols.infinitely.datamodels."}, start, end);
     }
 
@@ -105,7 +107,7 @@ public class PostDetailRepository extends Repository<PostDetailData, Long> {
                         " a.brief PostDetailData.brief, a.like PostDetailData.like," +
                         " a.platform PostDetailData.platform From PostData a, CategoryData b" +
                         " Where a.categoryId = b.id and b.update > ? and b.update < ? and" +
-                        " %s and a.update > ? and a.update < ? and a.platform in %s and %s",
+                        " %s and a.update > ? and a.update < ? and a.platform in %s and %s and a.disabled = 0",
                 categoryKeywordsStringJoiner.toString(), platformsStringJoiner.toString(), postKeywordsStringJoiner.toString()),
                 new String[]{"tech.caols.infinitely.datamodels."}, categoryStart, categoryEnd, postStart, postEnd);
     }

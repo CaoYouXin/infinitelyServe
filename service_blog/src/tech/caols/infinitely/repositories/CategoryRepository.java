@@ -14,7 +14,7 @@ public class CategoryRepository extends Repository<CategoryData, Long> {
     }
 
     public CategoryData findByName(String name) {
-        List<CategoryData> categoryDataList = super.query("Select a From CategoryData a Where a.name = ?",
+        List<CategoryData> categoryDataList = super.query("Select a From CategoryData a Where a.name = ? and a.disabled = 0",
                 new String[]{"tech.caols.infinitely.datamodels."}, name);
 
         if (categoryDataList.size() > 0) {
@@ -28,8 +28,13 @@ public class CategoryRepository extends Repository<CategoryData, Long> {
         keywords.forEach(keyword -> {
             stringJoiner.add(String.format("a.name like '%%%s%%'", keyword));
         });
-        return super.query(String.format("Select a From CategoryData a Where a.update > ? and a.update < ? and %s", stringJoiner.toString()),
+        return super.query(String.format("Select a From CategoryData a Where a.update > ? and a.update < ? and %s and a.disabled = 0", stringJoiner.toString()),
                 new String[]{"tech.caols.infinitely.datamodels."}, start, end);
+    }
+
+    public List<CategoryData> findAllNotDisabled() {
+        return super.query("Select a From CategoryData a Where a.disabled = 0",
+                new String[]{"tech.caols.infinitely.datamodels."});
     }
 
 }

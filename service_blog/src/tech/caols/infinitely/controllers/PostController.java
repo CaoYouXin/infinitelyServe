@@ -32,7 +32,7 @@ public class PostController {
 
     @RestAPI(name = "delete_post", url = "/post/delete", target = RestTarget.POST)
     public List<PostView> save(Deletion deletion, HttpResponse response) {
-        return this.postService.delete(deletion.getIds(), response);
+        return this.postService.softDelete(deletion.getIds(), response);
     }
 
     @RestAPI(name = "list_post_by_category", url = "/post/list_by_category", target = RestTarget.GET)

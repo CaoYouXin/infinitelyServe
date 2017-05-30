@@ -12,6 +12,7 @@ import tech.caols.infinitely.viewmodels.CategoryView;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CategoryServiceImpl extends BaseServiceImpl<CategoryData, CategoryView> implements CategoryService {
 
@@ -19,6 +20,15 @@ public class CategoryServiceImpl extends BaseServiceImpl<CategoryData, CategoryV
 
     public CategoryServiceImpl() {
         super(CategoryData.class, CategoryView.class);
+    }
+
+    @Override
+    public List<CategoryView> list() {
+        return this.categoryRepository.findAllNotDisabled().stream().map(categoryData -> {
+            CategoryView categoryView = new CategoryView();
+            BeanUtils.copyBean(categoryData, categoryView);
+            return categoryView;
+        }).collect(Collectors.toList());
     }
 
     @Override

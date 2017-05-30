@@ -518,6 +518,10 @@ public class Repository<T, ID> {
         String sql = String.format("Delete From `%s` Where `%s` in %s", this.tableName(),
                 this.keyColumn().getColumn().name(), stringJoiner.toString());
 
+        return this.execute(sql);
+    }
+
+    private boolean execute(String sql) {
         try (Connection conn = DatasourceFactory.getMySQLDataSource().getConnection()) {
             Statement statement = conn.createStatement();
             int update = statement.executeUpdate(sql);
@@ -529,5 +533,14 @@ public class Repository<T, ID> {
         }
 
         return false;
+    }
+
+    public boolean softRemoveAll(List<ID> ids) {
+        StringJoiner stringJoiner = new StringJoiner(", ", "(", ")");
+        ids.stream().map(id -> id + "").forEach(stringJoiner::add);
+        String sql = String.format("Update `%s` Set `disabled` = 1 Where `%s` in %s", this.tableName(),
+                this.keyColumn().getColumn().name(), stringJoiner.toString());
+
+        return this.execute(sql);
     }
 }
