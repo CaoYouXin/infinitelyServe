@@ -8,6 +8,7 @@
       <module fileurl="file://$PROJECT_DIR$/rest/rest.iml" filepath="$PROJECT_DIR$/rest/rest.iml" />
       <module fileurl="file://$PROJECT_DIR$/serve.iml" filepath="$PROJECT_DIR$/serve.iml" />
       <module fileurl="file://$PROJECT_DIR$/service_blog/service_blog.iml" filepath="$PROJECT_DIR$/service_blog/service_blog.iml" />
+      <module fileurl="file://$PROJECT_DIR$/service_favour/service_favour.iml" filepath="$PROJECT_DIR$/service_favour/service_favour.iml" />
       <module fileurl="file://$PROJECT_DIR$/service_resource/service_resource.iml" filepath="$PROJECT_DIR$/service_resource/service_resource.iml" />
       <module fileurl="file://$PROJECT_DIR$/service_server_management/service_server_management.iml" filepath="$PROJECT_DIR$/service_server_management/service_server_management.iml" />
       <module fileurl="file://$PROJECT_DIR$/service_user/service_user.iml" filepath="$PROJECT_DIR$/service_user/service_user.iml" />
