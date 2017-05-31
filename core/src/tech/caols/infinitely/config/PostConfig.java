@@ -76,6 +76,11 @@ public class PostConfig {
         return url;
     }
 
+    @JsonIgnore
+    public String getRegexStr() {
+        return regexStr;
+    }
+
     public void setUrl(String url) {
         this.url = url;
     }
@@ -118,14 +123,22 @@ public class PostConfig {
                 '}';
     }
 
-    private static ConcurrentSkipListSet<PostConfig> PreConfigList = new ConcurrentSkipListSet<>();
+    private static ConcurrentSkipListSet<PostConfig> PostConfigList = new ConcurrentSkipListSet<>();
 
     public static Iterable<PostConfig> match(String url) {
-        return PreConfigList.stream().filter(preConfig -> preConfig.getRegex().matcher(url).matches()).collect(Collectors.toList());
+        return PostConfigList.stream().filter(preConfig -> preConfig.getRegex().matcher(url).matches()).collect(Collectors.toList());
     }
 
     public static boolean addConfig(PostConfig postConfig) {
-        return PreConfigList.add(postConfig);
+        return PostConfigList.add(postConfig);
     }
 
+    public static boolean removeConfig(PostConfig postConfig) {
+        for (PostConfig config : PostConfigList) {
+            if (config.getRegexStr().equals(postConfig.getRegexStr())) {
+                return PostConfigList.remove(config);
+            }
+        }
+        return false;
+    }
 }

@@ -15,8 +15,6 @@ import org.apache.logging.log4j.Logger;
 import tech.caols.infinitely.CallBack;
 import tech.caols.infinitely.config.PostConfig;
 import tech.caols.infinitely.config.PostConfigs;
-import tech.caols.infinitely.config.PreConfig;
-import tech.caols.infinitely.config.PreConfigs;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -28,11 +26,13 @@ public class PostRegister implements CallBack {
     private final PostConfigs postConfigs;
     private final String hostName;
     private final int port;
+    private final boolean isRegister;
 
-    public PostRegister(PostConfigs postConfigs, String hostName, int port) {
+    public PostRegister(PostConfigs postConfigs, String hostName, int port, boolean isRegister) {
         this.postConfigs = postConfigs;
         this.hostName = hostName;
         this.port = port;
+        this.isRegister = isRegister;
     }
 
     @Override
@@ -53,7 +53,7 @@ public class PostRegister implements CallBack {
 
         DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024);
 
-        String uri = "/hook.cfg?type=POST";
+        String uri = "/hook.cfg?type=POST&method=" + (this.isRegister ? "register" : "unregister");
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {

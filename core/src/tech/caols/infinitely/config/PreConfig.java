@@ -69,6 +69,11 @@ public class PreConfig {
         return url;
     }
 
+    @JsonIgnore
+    public String getRegexStr() {
+        return regexStr;
+    }
+
     public void setUrl(String url) {
         this.url = url;
     }
@@ -114,5 +119,14 @@ public class PreConfig {
 
     public static boolean addConfig(PreConfig preConfig) {
         return PreConfigList.add(preConfig);
+    }
+
+    public static boolean removeConfig(PreConfig preConfig) {
+        for (PreConfig config : PreConfigList) {
+            if (config.getRegexStr().equals(preConfig.getRegexStr())) {
+                return PreConfigList.remove(config);
+            }
+        }
+        return false;
     }
 }

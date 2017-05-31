@@ -8,7 +8,6 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
-import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.protocol.*;
 import org.apache.http.util.EntityUtils;
 import org.apache.logging.log4j.LogManager;
@@ -19,7 +18,6 @@ import tech.caols.infinitely.config.PreConfigs;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Iterator;
 
 public class PreRegister implements CallBack {
 
@@ -28,16 +26,13 @@ public class PreRegister implements CallBack {
     private final PreConfigs preConfigs;
     private final String hostName;
     private final int port;
+    private final boolean isRegister;
 
-    public PreRegister(PreConfigs preConfigs, String hostName, int port) {
+    public PreRegister(PreConfigs preConfigs, String hostName, int port, boolean isRegister) {
         this.preConfigs = preConfigs;
         this.hostName = hostName;
         this.port = port;
-//        try {
-//            this.hostName = SimpleUtils.getLocalHostLANAddress().getHostAddress();
-//        } catch (UnknownHostException e) {
-//            logger.catching(e);
-//        }
+        this.isRegister = isRegister;
     }
 
     @Override
@@ -58,7 +53,7 @@ public class PreRegister implements CallBack {
 
         DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024);
 
-        String uri = "/hook.cfg?type=PRE";
+        String uri = "/hook.cfg?type=PRE&method=" + (this.isRegister ? "register" : "unregister");
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {

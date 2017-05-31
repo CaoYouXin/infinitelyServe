@@ -31,14 +31,38 @@ public class CfgHandler implements HttpRequestHandler {
         switch(parameterMap.get("type")) {
             case "PRE":
                 PreConfig preConfig = HttpUtils.getBodyAsObject(httpRequest, PreConfig.class);
-                PreConfig.addConfig(preConfig);
+                switch (parameterMap.get("method")) {
+                    case "register":
+                        PreConfig.addConfig(preConfig);
+                        break;
+                    case "unregister":
+                        PreConfig.removeConfig(preConfig);
+                        break;
+                    default:
+                        String msg = "PRE unknown method : " + parameterMap.get("method");
+                        logger.error(msg);
+                        throw new RuntimeException(msg);
+                }
                 break;
             case "POST":
                 PostConfig postConfig = HttpUtils.getBodyAsObject(httpRequest, PostConfig.class);
-                PostConfig.addConfig(postConfig);
+                switch (parameterMap.get("method")) {
+                    case "register":
+                        PostConfig.addConfig(postConfig);
+                        break;
+                    case "unregister":
+                        PostConfig.removeConfig(postConfig);
+                        break;
+                    default:
+                        String msg = "POST unknown method : " + parameterMap.get("method");
+                        logger.error(msg);
+                        throw new RuntimeException(msg);
+                }
                 break;
             default:
-                throw new RuntimeException("unknown type : " + parameterMap.get("type"));
+                String msg = "unknown type : " + parameterMap.get("type");
+                logger.error(msg);
+                throw new RuntimeException(msg);
         }
 
     }
