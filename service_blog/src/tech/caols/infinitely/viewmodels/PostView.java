@@ -2,6 +2,7 @@ package tech.caols.infinitely.viewmodels;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import javax.persistence.Column;
 import java.util.Date;
 
 public class PostView {
@@ -27,6 +28,25 @@ public class PostView {
     private String script;
     private String brief;
     private String screenshot;
+
+    private Long resourceLevelId;
+    private String resourceLevelName;
+
+    public Long getResourceLevelId() {
+        return resourceLevelId;
+    }
+
+    public void setResourceLevelId(Long resourceLevelId) {
+        this.resourceLevelId = resourceLevelId;
+    }
+
+    public String getResourceLevelName() {
+        return resourceLevelName;
+    }
+
+    public void setResourceLevelName(String resourceLevelName) {
+        this.resourceLevelName = resourceLevelName;
+    }
 
     public Long getId() {
         return id;
