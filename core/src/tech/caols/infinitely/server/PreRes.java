@@ -7,17 +7,8 @@ import java.util.Map;
 
 public class PreRes {
 
-    private int code;
     private Map<String, String> set;
     private List<String> remove;
-
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
 
     public Map<String, String> getSet() {
         return set;

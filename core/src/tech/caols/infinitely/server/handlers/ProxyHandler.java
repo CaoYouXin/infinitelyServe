@@ -111,19 +111,21 @@ public class ProxyHandler implements HttpRequestHandler {
             SimplePool.get().release(connEntry);
 
             HashMap preRetObject = HttpUtils.OBJECT_MAPPER.readValue(preRet, HashMap.class);
-            if (Integer.parseInt(preRetObject.get(CODE).toString()) == CODE_INVALID) {
+            if (Integer.parseInt(preRetObject.get(CODE).toString()) != CODE_VALID) {
 
                 HttpUtils.response(httpResponse, JsonRes.getFailJsonRes("one of the pre processors commands returning a fail."));
                 return;
             } else {
-                Map sets = (Map) preRetObject.get(OUT_SET);
+                PreRes preRes = (PreRes) preRetObject.get(BODY);
+
+                Map sets = preRes.getSet();
                 if (null != sets) {
                     for (Object key : sets.keySet()) {
                         httpContext.setAttribute((String) key, sets.get(key));
                     }
                 }
 
-                List removes = (List) preRetObject.get(OUT_REMOVE);
+                List removes = preRes.getRemove();
                 if (null != removes) {
                     for (Object removeKey : removes) {
                         httpContext.removeAttribute((String) removeKey);

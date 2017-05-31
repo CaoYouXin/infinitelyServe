@@ -1,5 +1,6 @@
 package tech.caols.infinitely.controllers;
 
+import org.apache.http.HttpResponse;
 import tech.caols.infinitely.rest.Rest;
 import tech.caols.infinitely.rest.RestAPI;
 import tech.caols.infinitely.rest.RestTarget;
@@ -14,8 +15,8 @@ public class UserFavourLevelController {
     private UserFavourLevelService userFavourLevelService = new UserFavourLevelServiceImpl();
 
     @RestAPI(name = "set_user_level", url = "/favour/level/set", target = RestTarget.POST)
-    public PreRes setUserLevel(PreReq preReq) {
-        return this.userFavourLevelService.userFavourLevel(preReq);
+    public PreRes setUserLevel(PreReq preReq, HttpResponse response) {
+        return this.userFavourLevelService.userFavourLevel(preReq, response);
     }
 
 }
