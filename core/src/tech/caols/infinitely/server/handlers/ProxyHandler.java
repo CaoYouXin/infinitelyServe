@@ -13,9 +13,7 @@ import org.apache.logging.log4j.Logger;
 import tech.caols.infinitely.Constants;
 import tech.caols.infinitely.config.PostConfig;
 import tech.caols.infinitely.config.PreConfig;
-import tech.caols.infinitely.server.HttpUtils;
-import tech.caols.infinitely.server.JsonRes;
-import tech.caols.infinitely.server.SimplePool;
+import tech.caols.infinitely.server.*;
 
 import java.io.IOException;
 import java.util.*;
@@ -80,7 +78,6 @@ public class ProxyHandler implements HttpRequestHandler {
             throw new MethodNotSupportedException(HttpUtils.getMethod(httpRequest) + " method not supported");
         }
 
-        ObjectMapper objectMapper = new ObjectMapper();
         String url = HttpUtils.getSimpleDecodedUrl(httpRequest);
         Map<String, String> parameterMap = HttpUtils.getParameterMap(httpRequest);
 
@@ -90,17 +87,17 @@ public class ProxyHandler implements HttpRequestHandler {
             HttpCoreContext coreContext = HttpCoreContext.create();
             coreContext.setTargetHost(config.getHost());
 
-            Map reqMap = new HashMap();
-            if (config.getParameters() != null && config.getParameters().size() > 0) {
-                params(parameterMap, config, reqMap);
+            PreReq preReq = new PreReq();
+            if (config.getParameters() != null && !config.getParameters().isEmpty()) {
+                preReq.setParameters(params(parameterMap, config));
             }
 
             if (config.isNeedBody()) {
-                reqMap.put("body", HttpUtils.getBodyAsString(httpRequest));
+                preReq.setBody(HttpUtils.getBodyAsString(httpRequest));
             }
 
             BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", config.getUrl());
-            request.setEntity(new StringEntity(objectMapper.writeValueAsString(reqMap), ContentType.APPLICATION_JSON));
+            request.setEntity(new StringEntity(HttpUtils.OBJECT_MAPPER.writeValueAsString(preReq), ContentType.APPLICATION_JSON));
             logger.info(">> Request URI: " + request.getRequestLine().getUri());
 
             this.httpExecutor.preProcess(request, this.httpproc, coreContext);
@@ -113,7 +110,7 @@ public class ProxyHandler implements HttpRequestHandler {
             logger.info("==============");
             SimplePool.get().release(connEntry);
 
-            HashMap preRetObject = objectMapper.readValue(preRet, HashMap.class);
+            HashMap preRetObject = HttpUtils.OBJECT_MAPPER.readValue(preRet, HashMap.class);
             if (Integer.parseInt(preRetObject.get(CODE).toString()) == CODE_INVALID) {
 
                 HttpUtils.response(httpResponse, JsonRes.getFailJsonRes("one of the pre processors commands returning a fail."));
@@ -143,24 +140,24 @@ public class ProxyHandler implements HttpRequestHandler {
             HttpCoreContext coreContext = HttpCoreContext.create();
             coreContext.setTargetHost(config.getHost());
 
-            Map reqMap = new HashMap();
+            PostReq postReq = new PostReq();
             if (config.getParameters() != null && config.getParameters().size() > 0) {
-                params(parameterMap, config, reqMap);
+                postReq.setParameters(this.params(parameterMap, config));
             }
 
             if (config.isNeedBody()) {
-                reqMap.put("body", HttpUtils.getBodyAsString(httpRequest));
+                postReq.setBody(HttpUtils.getBodyAsString(httpRequest));
             }
 
             if (config.isNeedRetObj()) {
                 Object retObject = httpContext.getAttribute(RET_OBJECT);
                 if (null != retObject) {
-                    reqMap.put("ret", objectMapper.writeValueAsString(retObject));
+                    postReq.setRet(retObject.toString());
                 }
             }
 
             BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", config.getUrl());
-            request.setEntity(new StringEntity(objectMapper.writeValueAsString(reqMap), ContentType.APPLICATION_JSON));
+            request.setEntity(new StringEntity(HttpUtils.OBJECT_MAPPER.writeValueAsString(postReq), ContentType.APPLICATION_JSON));
             logger.info(">> Request URI: " + request.getRequestLine().getUri());
 
             this.httpExecutor.preProcess(request, this.httpproc, coreContext);
@@ -173,7 +170,7 @@ public class ProxyHandler implements HttpRequestHandler {
             logger.info("==============");
             SimplePool.get().release(connEntry);
 
-            HashMap postRetObject = objectMapper.readValue(postRet, HashMap.class);
+            HashMap postRetObject = HttpUtils.OBJECT_MAPPER.readValue(postRet, HashMap.class);
             if (Integer.parseInt(postRetObject.get(CODE).toString()) == CODE_INVALID) {
 
                 HttpUtils.response(httpResponse, JsonRes.getFailJsonRes("one of the post processors commands returning a fail."));
@@ -198,20 +195,20 @@ public class ProxyHandler implements HttpRequestHandler {
 
     }
 
-    private void params(Map<String, String> parameterMap, PostConfig config, Map reqMap) {
-        this.params(parameterMap, config.getParameters(), reqMap);
+    private Map<String, String> params(Map<String, String> parameterMap, PostConfig config) {
+        return this.params(parameterMap, config.getParameters());
     }
 
-    private void params(Map<String, String> parameterMap, PreConfig config, Map reqMap) {
-        this.params(parameterMap, config.getParameters(), reqMap);
+    private Map<String, String> params(Map<String, String> parameterMap, PreConfig config) {
+        return this.params(parameterMap, config.getParameters());
     }
 
-    private void params(Map<String, String> parameterMap, List<String> keys, Map reqMap) {
+    private Map<String, String> params(Map<String, String> parameterMap, List<String> keys) {
         Map parameters = new HashMap();
         for (String param : keys) {
             parameters.put(param, parameterMap.get(param));
         }
-        reqMap.put("parameters", parameters);
+        return parameters;
     }
 
 }
