@@ -22,7 +22,7 @@ public class CfgHandler implements HttpRequestHandler {
     @Override
     public void handle(HttpRequest httpRequest, HttpResponse httpResponse, HttpContext httpContext) throws HttpException, IOException {
 
-        if (!HttpUtils.isGet(httpRequest)) {
+        if (!HttpUtils.isPost(httpRequest)) {
             throw new MethodNotSupportedException(HttpUtils.getMethod(httpRequest) + " method not supported");
         }
 

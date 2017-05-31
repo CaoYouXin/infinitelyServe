@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class PreConfig {
+public class PreConfig implements Comparable<PreConfig> {
 
     @JsonProperty("hostname")
     private String hostName;
@@ -128,5 +128,10 @@ public class PreConfig {
             }
         }
         return false;
+    }
+
+    @Override
+    public int compareTo(PreConfig o) {
+        return this.getRegexStr().compareTo(o.getRegexStr());
     }
 }

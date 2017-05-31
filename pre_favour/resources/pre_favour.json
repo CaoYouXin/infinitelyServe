@@ -6,12 +6,38 @@
   "configs": [
     {
       "hostName": "localhost",
-      "port": 9000,
+      "port": 9002,
       "items": [
         {
-          "regex": "",
-          "url": "",
-          "parameters": [],
+          "regex": "\\/r\\/.*",
+          "url": "/favour/level/set",
+          "parameters": ["user_token"],
+          "needBody": false
+        }
+      ]
+    }, {
+      "hostName": "localhost",
+      "port": 9003,
+      "items": [
+        {
+          "regex": "\\/post\\/list_by_category.*",
+          "url": "/favour/level/set",
+          "parameters": ["user_token"],
+          "needBody": false
+        }, {
+          "regex": "\\/post\\/fetch_by_name.*",
+          "url": "/favour/level/set",
+          "parameters": ["user_token"],
+          "needBody": false
+        }, {
+          "regex": "\\/search\\/post.*",
+          "url": "/favour/level/set",
+          "parameters": ["user_token"],
+          "needBody": false
+        }, {
+          "regex": "\\/search\\/post_with_category.*",
+          "url": "/favour/level/set",
+          "parameters": ["user_token"],
           "needBody": false
         }
       ]

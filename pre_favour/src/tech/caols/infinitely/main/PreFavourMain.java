@@ -8,6 +8,7 @@ import tech.caols.infinitely.cmd.Stop;
 import tech.caols.infinitely.config.ConfigUtil;
 import tech.caols.infinitely.config.PreConfigs;
 import tech.caols.infinitely.config.SimpleConfig;
+import tech.caols.infinitely.controllers.UserFavourLevelController;
 import tech.caols.infinitely.register.PreRegister;
 import tech.caols.infinitely.rest.RestHelper;
 import tech.caols.infinitely.server.SimpleServer;
@@ -40,6 +41,7 @@ public class PreFavourMain {
             SimpleServer simpleServer = new SimpleServer(config.getServer().getPort(), config.getServer().getDocRoot());
 
             RestHelper restHelper = new RestHelper(simpleServer);
+            restHelper.addRestObject(new UserFavourLevelController());
 
             simpleServer.start(registers.add(() -> {
                 logger.info("service [PreFavourMain] started.");

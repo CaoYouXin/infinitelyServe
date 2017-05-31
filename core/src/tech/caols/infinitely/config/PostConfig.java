@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class PostConfig {
+public class PostConfig implements Comparable<PostConfig> {
 
     @JsonProperty("hostname")
     private String hostName;
@@ -140,5 +140,10 @@ public class PostConfig {
             }
         }
         return false;
+    }
+
+    @Override
+    public int compareTo(PostConfig o) {
+        return this.getRegexStr().compareTo(o.getRegexStr());
     }
 }

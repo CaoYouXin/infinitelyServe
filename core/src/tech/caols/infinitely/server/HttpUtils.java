@@ -67,13 +67,14 @@ public class HttpUtils {
     }
 
     public static Map<String, String> getParameterMap(HttpRequest httpRequest) {
+        Map<String, String> ret = new HashMap<>();
+
         String decodedUrl = getDecodedUrl(httpRequest);
         int indexOf = decodedUrl.indexOf('?');
         if (-1 == indexOf) {
-            throw new RuntimeException("wrong config url pattern.");
+            return ret;
         }
 
-        Map<String, String> ret = new HashMap<>();
         putParameter(decodedUrl.substring(indexOf + 1), ret, "&");
         return ret;
     }

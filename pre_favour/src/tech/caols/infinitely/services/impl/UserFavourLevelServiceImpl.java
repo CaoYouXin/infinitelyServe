@@ -29,6 +29,14 @@ public class UserFavourLevelServiceImpl implements UserFavourLevelService {
         PreRes preRes = new PreRes();
 
         String userToken = preReq.getParameters().get("user_token");
+        if (null == userToken) {
+            Configs byKey = this.configsRepository.findByKey(ConfigsKeys.DefaultUserLevel);
+            if (null != byKey) {
+                preRes.appendSet(Constants.USER_LEVELS, byKey.getValue());
+            }
+            return preRes;
+        }
+
         Token tokenByToken = this.tokenRepository.findTokenByToken(userToken);
         if (null == tokenByToken) {
             preRes.setCode(Constants.CODE_INVALID);
