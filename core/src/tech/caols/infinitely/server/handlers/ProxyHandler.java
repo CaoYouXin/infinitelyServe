@@ -20,6 +20,8 @@ import tech.caols.infinitely.server.SimplePool;
 import java.io.IOException;
 import java.util.*;
 
+import static tech.caols.infinitely.Constants.*;
+
 public class ProxyHandler implements HttpRequestHandler {
 
     private static final Logger logger = LogManager.getLogger(ProxyHandler.class);
@@ -88,21 +90,17 @@ public class ProxyHandler implements HttpRequestHandler {
             HttpCoreContext coreContext = HttpCoreContext.create();
             coreContext.setTargetHost(config.getHost());
 
-            Map map = new HashMap();
+            Map reqMap = new HashMap();
             if (config.getParameters() != null && config.getParameters().size() > 0) {
-                Map parameters = new HashMap();
-                for (String param : config.getParameters()) {
-                    parameters.put(param, parameterMap.get(param));
-                }
-                map.put("parameters", parameters);
+                params(parameterMap, config, reqMap);
             }
 
             if (config.isNeedBody()) {
-                map.put("body", HttpUtils.getBodyAsString(httpRequest));
+                reqMap.put("body", HttpUtils.getBodyAsString(httpRequest));
             }
 
             BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", config.getUrl());
-            request.setEntity(new StringEntity(objectMapper.writeValueAsString(map), ContentType.APPLICATION_JSON));
+            request.setEntity(new StringEntity(objectMapper.writeValueAsString(reqMap), ContentType.APPLICATION_JSON));
             logger.info(">> Request URI: " + request.getRequestLine().getUri());
 
             this.httpExecutor.preProcess(request, this.httpproc, coreContext);
@@ -116,19 +114,19 @@ public class ProxyHandler implements HttpRequestHandler {
             SimplePool.get().release(connEntry);
 
             HashMap preRetObject = objectMapper.readValue(preRet, HashMap.class);
-            if (preRetObject.get(Constants.CODE).equals(Constants.INVALID)) {
+            if (Integer.parseInt(preRetObject.get(CODE).toString()) == CODE_INVALID) {
 
                 HttpUtils.response(httpResponse, JsonRes.getFailJsonRes("one of the pre processors commands returning a fail."));
                 return;
             } else {
-                Map sets = (Map) preRetObject.get(Constants.OUT_SET);
+                Map sets = (Map) preRetObject.get(OUT_SET);
                 if (null != sets) {
                     for (Object key : sets.keySet()) {
                         httpContext.setAttribute((String) key, sets.get(key));
                     }
                 }
 
-                List removes = (List) preRetObject.get(Constants.OUT_REMOVE);
+                List removes = (List) preRetObject.get(OUT_REMOVE);
                 if (null != removes) {
                     for (Object removeKey : removes) {
                         httpContext.removeAttribute((String) removeKey);
@@ -147,11 +145,7 @@ public class ProxyHandler implements HttpRequestHandler {
 
             Map reqMap = new HashMap();
             if (config.getParameters() != null && config.getParameters().size() > 0) {
-                Map parameters = new HashMap();
-                for (String param : config.getParameters()) {
-                    parameters.put(param, parameterMap.get(param));
-                }
-                reqMap.put("parameters", parameters);
+                params(parameterMap, config, reqMap);
             }
 
             if (config.isNeedBody()) {
@@ -159,7 +153,7 @@ public class ProxyHandler implements HttpRequestHandler {
             }
 
             if (config.isNeedRetObj()) {
-                Object retObject = httpContext.getAttribute(Constants.RET_OBJECT);
+                Object retObject = httpContext.getAttribute(RET_OBJECT);
                 if (null != retObject) {
                     reqMap.put("ret", objectMapper.writeValueAsString(retObject));
                 }
@@ -180,28 +174,44 @@ public class ProxyHandler implements HttpRequestHandler {
             SimplePool.get().release(connEntry);
 
             HashMap postRetObject = objectMapper.readValue(postRet, HashMap.class);
-            if (postRetObject.get(Constants.CODE).equals(Constants.INVALID)) {
+            if (Integer.parseInt(postRetObject.get(CODE).toString()) == CODE_INVALID) {
 
                 HttpUtils.response(httpResponse, JsonRes.getFailJsonRes("one of the post processors commands returning a fail."));
                 return;
-            } else if (postRetObject.get(Constants.CODE).equals(Constants.REPLACE_VALID)) {
+            } else if (Integer.parseInt(postRetObject.get(CODE).toString()) == CODE_REPLACE_VALID) {
 
-                httpContext.setAttribute(Constants.RET_OBJECT_STRING, postRetObject.get(Constants.BODY));
+                httpContext.setAttribute(RET_OBJECT_STRING, postRetObject.get(BODY));
             }
         }
 
-        Object retObjectString = httpContext.getAttribute(Constants.RET_OBJECT_STRING);
+        Object retObjectString = httpContext.getAttribute(RET_OBJECT_STRING);
         if (null != retObjectString) {
 
             HttpUtils.response(httpResponse, (String) retObjectString);
         } else {
 
-            Object retObject = httpContext.getAttribute(Constants.RET_OBJECT);
+            Object retObject = httpContext.getAttribute(RET_OBJECT);
             if (null != retObject) {
-                HttpUtils.response(httpResponse, new JsonRes<>(Constants.CODE_VALID, retObject));
+                HttpUtils.response(httpResponse, new JsonRes<>(CODE_VALID, retObject));
             }
         }
 
+    }
+
+    private void params(Map<String, String> parameterMap, PostConfig config, Map reqMap) {
+        this.params(parameterMap, config.getParameters(), reqMap);
+    }
+
+    private void params(Map<String, String> parameterMap, PreConfig config, Map reqMap) {
+        this.params(parameterMap, config.getParameters(), reqMap);
+    }
+
+    private void params(Map<String, String> parameterMap, List<String> keys, Map reqMap) {
+        Map parameters = new HashMap();
+        for (String param : keys) {
+            parameters.put(param, parameterMap.get(param));
+        }
+        reqMap.put("parameters", parameters);
     }
 
 }

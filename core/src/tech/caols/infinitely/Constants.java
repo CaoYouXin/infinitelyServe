@@ -15,9 +15,6 @@ public class Constants {
     public static final String RET_OBJECT_STRING = "ret-object-string";
     public static final String CODE = "code";
     public static final String BODY = "body";
-    public static final String INVALID = "Invalid";
-    public static final String VALID = "Valid";
-    public static final String REPLACE_VALID = "Replace_Valid";
     public static final String OUT_SET = "set";
     public static final String OUT_REMOVE = "remove";
 
@@ -31,6 +28,7 @@ public class Constants {
      */
     public static final int CODE_INVALID = 50100;
     public static final int CODE_VALID = 20000;
+    public static final int CODE_REPLACE_VALID = 30000;
     public static final int CODE_NO_USER = 50200;
     public static final int CODE_WRONG_PWD = 50201;
     public static final int CODE_WRONG_CAPTCHA = 50202;

@@ -21,9 +21,9 @@ public class HttpUtils {
 
     private static final Logger logger = LogManager.getLogger(HttpUtils.class);
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     static {
-        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        OBJECT_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
     }
 
     public static String getMethod(HttpRequest httpRequest) {
@@ -145,7 +145,7 @@ public class HttpUtils {
     public static <T> T getBodyAsObject(HttpRequest httpRequest, Class<T> clazz) {
         String bodyAsString = getBodyAsString(httpRequest);
         try {
-            return objectMapper.readValue(bodyAsString, clazz);
+            return OBJECT_MAPPER.readValue(bodyAsString, clazz);
         } catch (IOException e) {
             logger.catching(e);
             return null;
@@ -164,7 +164,7 @@ public class HttpUtils {
     public static void response(HttpResponse httpResponse, JsonRes jsonRes) {
         httpResponse.setStatusCode(HttpStatus.SC_OK);
         try {
-            String retString = objectMapper.writeValueAsString(jsonRes);
+            String retString = OBJECT_MAPPER.writeValueAsString(jsonRes);
             logger.info("returning --->" + retString);
             httpResponse.setEntity(new StringEntity(
                     retString,

@@ -1,8 +1,13 @@
 package tech.caols.infinitely.server;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import tech.caols.infinitely.Constants;
 
 public class JsonRes<T> {
+
+    private static final Logger logger = LogManager.getLogger(JsonRes.class);
 
     public static JsonRes SuccessJsonRes = new JsonRes(Constants.CODE_VALID);
 
@@ -32,6 +37,11 @@ public class JsonRes<T> {
 
     @Override
     public String toString() {
+        try {
+            return HttpUtils.OBJECT_MAPPER.writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            logger.catching(e);
+        }
         return "JsonRes{" +
                 "code=" + code +
                 ", body=" + body +
