@@ -1,5 +1,6 @@
 package tech.caols.infinitely.repositories;
 
+import tech.caols.infinitely.consts.ConfigsKeys;
 import tech.caols.infinitely.datamodels.Configs;
 import tech.caols.infinitely.db.Repository;
 
@@ -19,6 +20,16 @@ public class ConfigsRepository extends Repository<Configs, Long> {
             return configsList.get(0);
         }
         return null;
+    }
+
+    public boolean save(String key, String value) {
+        Configs configs = this.findByKey(key);
+        if (null == configs) {
+            configs = new Configs();
+            configs.setKey(key);
+        }
+        configs.setValue(value);
+        return this.save(configs);
     }
 
 }

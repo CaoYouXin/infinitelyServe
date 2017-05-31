@@ -49,6 +49,12 @@ public class PostDetailData {
     @Column(name = "brief")
     private String brief;
 
+    @Column(name = "resource_level_id")
+    private Long resourceLevelId;
+
+    @Column(name = "resource_level_name")
+    private String resourceLevelName;
+
     @Column(name = "disabled")
     private byte disabled;
 
@@ -162,5 +168,21 @@ public class PostDetailData {
 
     public void setDisabled(byte disabled) {
         this.disabled = disabled;
+    }
+
+    public Long getResourceLevelId() {
+        return resourceLevelId;
+    }
+
+    public void setResourceLevelId(Long resourceLevelId) {
+        this.resourceLevelId = resourceLevelId;
+    }
+
+    public String getResourceLevelName() {
+        return resourceLevelName;
+    }
+
+    public void setResourceLevelName(String resourceLevelName) {
+        this.resourceLevelName = resourceLevelName;
     }
 }

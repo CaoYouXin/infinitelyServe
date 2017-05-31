@@ -1,5 +1,6 @@
 package tech.caols.infinitely.controllers;
 
+import org.apache.http.protocol.HttpContext;
 import tech.caols.infinitely.rest.Rest;
 import tech.caols.infinitely.rest.RestAPI;
 import tech.caols.infinitely.rest.RestTarget;
@@ -20,15 +21,15 @@ public class SearchController {
     }
 
     @RestAPI(name = "search_post", url = "/search/post", target = RestTarget.POST)
-    public List<PostView> search4Post(PostSearch postSearch) {
-        return this.searchService.search4Post(postSearch.getStart(), postSearch.getEnd(), postSearch.getKeywords(), postSearch.getPlatform());
+    public List<PostView> search4Post(PostSearch postSearch, HttpContext context) {
+        return this.searchService.search4Post(postSearch.getStart(), postSearch.getEnd(), postSearch.getKeywords(), postSearch.getPlatform(), context);
     }
 
     @RestAPI(name = "search_post_with_category", url = "/search/post_with_category", target = RestTarget.POST)
-    public List<PostView> search4Post(PostSearchWithCategory postSearchWithCategory) {
+    public List<PostView> search4Post(PostSearchWithCategory postSearchWithCategory, HttpContext context) {
         return this.searchService.search4Post(postSearchWithCategory.getCategoryStart(), postSearchWithCategory.getCategoryEnd(),
                 postSearchWithCategory.getCategoryKeywords(), postSearchWithCategory.getPostStart(), postSearchWithCategory.getPostEnd(),
-                postSearchWithCategory.getPostKeywords(), postSearchWithCategory.getPlatform());
+                postSearchWithCategory.getPostKeywords(), postSearchWithCategory.getPlatform(), context);
     }
 
 }

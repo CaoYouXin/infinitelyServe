@@ -5,6 +5,7 @@ public class LevelView {
     private Long id;
     private String name;
     private String msg;
+    private boolean isDefault;
 
     public Long getId() {
         return id;
@@ -30,4 +31,11 @@ public class LevelView {
         this.msg = msg;
     }
 
+    public boolean isDefault() {
+        return isDefault;
+    }
+
+    public void setDefault(boolean aDefault) {
+        isDefault = aDefault;
+    }
 }

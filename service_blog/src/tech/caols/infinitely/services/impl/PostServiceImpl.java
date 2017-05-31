@@ -1,6 +1,7 @@
 package tech.caols.infinitely.services.impl;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.protocol.HttpContext;
 import tech.caols.infinitely.datamodels.PostData;
 import tech.caols.infinitely.datamodels.PostDetailData;
 import tech.caols.infinitely.repositories.PostDetailRepository;
@@ -9,6 +10,7 @@ import tech.caols.infinitely.rest.BeanUtils;
 import tech.caols.infinitely.server.HttpUtils;
 import tech.caols.infinitely.server.JsonRes;
 import tech.caols.infinitely.services.PostService;
+import tech.caols.infinitely.utils.UserLevelUtil;
 import tech.caols.infinitely.viewmodels.PostView;
 
 import java.util.Date;
@@ -43,8 +45,8 @@ public class PostServiceImpl extends BaseServiceImpl<PostData, PostView> impleme
     }
 
     @Override
-    public List<PostView> list(String category, String platform) {
-        return this.postDetailRepository.findAllByCategoryAndPlatform(category, platform).stream().map(postDetailData -> {
+    public List<PostView> list(String category, String platform, HttpContext context) {
+        return this.postDetailRepository.findAllByCategoryAndPlatform(category, platform, UserLevelUtil.getUserLevels(context)).stream().map(postDetailData -> {
             PostView postView = new PostView();
             BeanUtils.copyBean(postDetailData, postView);
             return postView;
@@ -52,8 +54,8 @@ public class PostServiceImpl extends BaseServiceImpl<PostData, PostView> impleme
     }
 
     @Override
-    public PostView fetch(String name, HttpResponse response) {
-        PostDetailData postDetailData = this.postDetailRepository.findByName(name);
+    public PostView fetch(String name, HttpResponse response, HttpContext context) {
+        PostDetailData postDetailData = this.postDetailRepository.findByName(name, UserLevelUtil.getUserLevels(context));
         if (null == postDetailData) {
             HttpUtils.response(response, JsonRes.getFailJsonRes("没有该名称的POST！"));
             return null;
