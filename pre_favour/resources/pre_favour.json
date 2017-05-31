@@ -1,4 +1,20 @@
 {
-  "port": 10000,
-  "docRoot": "/Users/cls/Dev/Git/personal/infinitely/html/favour_management/docs/"
+  "server": {
+    "port": 10000,
+    "docRoot": "/Users/cls/Dev/Git/personal/infinitely/html/favour_management/docs/"
+  },
+  "configs": [
+    {
+      "hostName": "localhost",
+      "port": 9000,
+      "items": [
+        {
+          "regex": "",
+          "url": "",
+          "parameters": [],
+          "needBody": false
+        }
+      ]
+    }
+  ]
 }
