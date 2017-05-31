@@ -24,6 +24,9 @@ public class PreConfig implements Comparable<PreConfig> {
     @JsonProperty("isNeedBody")
     private boolean isNeedBody;
 
+    @JsonProperty("isNeedUrl")
+    private boolean isNeedUrl;
+
     @JsonProperty("regex")
     private String regexStr;
 
@@ -74,6 +77,15 @@ public class PreConfig implements Comparable<PreConfig> {
         return regexStr;
     }
 
+    @JsonIgnore
+    public boolean isNeedUrl() {
+        return isNeedUrl;
+    }
+
+    public void setNeedUrl(boolean needUrl) {
+        isNeedUrl = needUrl;
+    }
+
     public void setUrl(String url) {
         this.url = url;
     }
@@ -105,6 +117,7 @@ public class PreConfig implements Comparable<PreConfig> {
                 ", port=" + port +
                 ", parameters=" + parameters +
                 ", isNeedBody=" + isNeedBody +
+                ", isNeedUrl=" + isNeedUrl +
                 ", regexStr='" + regexStr + '\'' +
                 ", host=" + this.getHost() +
                 ", regex=" + this.getRegex() +

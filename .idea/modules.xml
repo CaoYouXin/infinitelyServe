@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/common/common.iml" filepath="$PROJECT_DIR$/common/common.iml" />
       <module fileurl="file://$PROJECT_DIR$/core/core.iml" filepath="$PROJECT_DIR$/core/core.iml" />
       <module fileurl="file://$PROJECT_DIR$/orm/orm.iml" filepath="$PROJECT_DIR$/orm/orm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/post_favour/post_favour.iml" filepath="$PROJECT_DIR$/post_favour/post_favour.iml" />
       <module fileurl="file://$PROJECT_DIR$/pre_favour/pre_favour.iml" filepath="$PROJECT_DIR$/pre_favour/pre_favour.iml" />
       <module fileurl="file://$PROJECT_DIR$/rest/rest.iml" filepath="$PROJECT_DIR$/rest/rest.iml" />
       <module fileurl="file://$PROJECT_DIR$/serve.iml" filepath="$PROJECT_DIR$/serve.iml" />

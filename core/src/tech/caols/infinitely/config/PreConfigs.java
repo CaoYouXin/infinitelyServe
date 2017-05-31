@@ -40,6 +40,7 @@ public class PreConfigs {
         private String url;
         private List<String> parameters;
         private boolean isNeedBody;
+        private boolean isNeedUrl;
 
         public String getRegex() {
             return regex;
@@ -71,6 +72,14 @@ public class PreConfigs {
 
         public void setNeedBody(boolean needBody) {
             isNeedBody = needBody;
+        }
+
+        public boolean isNeedUrl() {
+            return isNeedUrl;
+        }
+
+        public void setNeedUrl(boolean needUrl) {
+            isNeedUrl = needUrl;
         }
     }
 }

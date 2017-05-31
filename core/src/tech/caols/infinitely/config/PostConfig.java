@@ -26,6 +26,9 @@ public class PostConfig implements Comparable<PostConfig> {
     @JsonProperty("isNeedRetObj")
     private boolean isNeedRetObj;
 
+    @JsonProperty("isNeedUrl")
+    private boolean isNeedUrl;
+
     @JsonProperty("regex")
     private String regexStr;
 
@@ -81,6 +84,15 @@ public class PostConfig implements Comparable<PostConfig> {
         return regexStr;
     }
 
+    @JsonIgnore
+    public boolean isNeedUrl() {
+        return isNeedUrl;
+    }
+
+    public void setNeedUrl(boolean needUrl) {
+        isNeedUrl = needUrl;
+    }
+
     public void setUrl(String url) {
         this.url = url;
     }
@@ -117,6 +129,7 @@ public class PostConfig implements Comparable<PostConfig> {
                 ", parameters=" + parameters +
                 ", isNeedBody=" + isNeedBody +
                 ", isNeedRetObj=" + isNeedRetObj +
+                ", isNeedUrl=" + isNeedUrl +
                 ", regexStr='" + regexStr + '\'' +
                 ", host=" + this.getHost() +
                 ", regex=" + this.getRegex() +

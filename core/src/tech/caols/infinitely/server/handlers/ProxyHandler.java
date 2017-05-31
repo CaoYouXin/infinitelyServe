@@ -92,6 +92,10 @@ public class ProxyHandler implements HttpRequestHandler {
                 preReq.setParameters(params(parameterMap, config));
             }
 
+            if (config.isNeedUrl()) {
+                preReq.setUrl(url);
+            }
+
             if (config.isNeedBody()) {
                 preReq.setBody(HttpUtils.getBodyAsString(httpRequest));
             }
@@ -145,6 +149,10 @@ public class ProxyHandler implements HttpRequestHandler {
             PostReq postReq = new PostReq();
             if (config.getParameters() != null && config.getParameters().size() > 0) {
                 postReq.setParameters(this.params(parameterMap, config));
+            }
+
+            if (config.isNeedUrl()) {
+                postReq.setUrl(url);
             }
 
             if (config.isNeedBody()) {

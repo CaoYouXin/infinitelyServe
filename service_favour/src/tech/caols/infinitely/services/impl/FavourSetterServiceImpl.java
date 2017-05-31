@@ -13,7 +13,7 @@ public class FavourSetterServiceImpl implements FavourSetterService {
     private FavourRepository favourRepository = new FavourRepository();
 
     @Override
-    public synchronized Boolean setFavourValue(Long userId, int value) {
+    public Boolean setFavourValue(Long userId, int value) {
         FavourData favourData = this.favourRepository.findByUserId(userId);
         if (null == favourData) {
             favourData = new FavourData();
@@ -22,25 +22,6 @@ public class FavourSetterServiceImpl implements FavourSetterService {
         favourData.setValue(value);
 
         return this.favourRepository.save(favourData);
-    }
-
-    @Override
-    public synchronized Integer addFavourValue(Long userId, int value, HttpResponse response) {
-        FavourData favourData = this.favourRepository.findByUserId(userId);
-        if (null == favourData) {
-            favourData = new FavourData();
-            favourData.setUserId(userId);
-            favourData.setValue(0);
-        }
-
-        int newValue = favourData.getValue() + value;
-        favourData.setValue(newValue);
-        if (!this.favourRepository.save(favourData)) {
-            HttpUtils.response(response, JsonRes.getFailJsonRes("更新好感度失败！"));
-            return null;
-        }
-
-        return newValue;
     }
 
 }

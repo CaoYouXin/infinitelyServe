@@ -1,0 +1,20 @@
+{
+  "server": {
+    "port": 10001,
+    "docRoot": "/home/oem/vars/html/favour_management/"
+  },
+  "configs": [
+    {
+      "hostName": "localhost",
+      "port": 9000,
+      "items": [
+        {
+          "regex": "",
+          "url": "",
+          "parameters": [],
+          "needBody": false
+        }
+      ]
+    }
+  ]
+}

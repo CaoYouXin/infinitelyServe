@@ -7,6 +7,7 @@ public class PostReq {
     private Map<String, String> parameters;
     private String body;
     private String ret;
+    private String url;
 
     public Map<String, String> getParameters() {
         return parameters;
@@ -30,5 +31,13 @@ public class PostReq {
 
     public void setRet(String ret) {
         this.ret = ret;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

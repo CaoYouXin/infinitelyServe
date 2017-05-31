@@ -1,0 +1,22 @@
+{
+  "server": {
+    "port": 10001,
+    "docRoot": "/Users/cls/Dev/Git/personal/infinitely/html/favour_management/docs/"
+  },
+  "configs": [
+    {
+      "hostName": "localhost",
+      "port": 9002,
+      "items": [
+        {
+          "regex": "\\/r\\/articles\\/.*\\.html",
+          "url": "/favour/collector/add1",
+          "parameters": ["user_token"],
+          "needBody": false,
+          "needRetObj": false,
+          "needUrl": true
+        }
+      ]
+    }
+  ]
+}

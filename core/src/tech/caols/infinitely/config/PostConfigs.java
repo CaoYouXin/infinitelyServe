@@ -39,6 +39,7 @@ public class PostConfigs {
         private List<String> parameters;
         private boolean isNeedBody;
         private boolean isNeedRetObj;
+        private boolean isNeedUrl;
 
         public String getRegex() {
             return regex;
@@ -78,6 +79,14 @@ public class PostConfigs {
 
         public void setNeedRetObj(boolean needRetObj) {
             isNeedRetObj = needRetObj;
+        }
+
+        public boolean isNeedUrl() {
+            return isNeedUrl;
+        }
+
+        public void setNeedUrl(boolean needUrl) {
+            isNeedUrl = needUrl;
         }
     }
 

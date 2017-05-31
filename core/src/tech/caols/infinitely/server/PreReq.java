@@ -6,6 +6,7 @@ public class PreReq {
 
     private Map<String, String> parameters;
     private String body;
+    private String url;
 
     public Map<String, String> getParameters() {
         return parameters;
@@ -21,5 +22,13 @@ public class PreReq {
 
     public void setBody(String body) {
         this.body = body;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }
