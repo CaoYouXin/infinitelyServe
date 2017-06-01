@@ -34,9 +34,9 @@ public class FeedbackController {
     }
 
     @RestAPI(name = "comment_comment", url = "/feedback/comment/comment", target = RestTarget.POST)
-    public CommentView commentComment(CommentRequest commentRequest, HttpResponse response) {
-        return this.feedbackService.commentComment(commentRequest.getIdWhatEver(), commentRequest.getUserName(),
-                commentRequest.getAtUserName(), commentRequest.getContent(), response);
+    public CommentView commentComment(Map<String, String> parameters, CommentRequest commentRequest, HttpResponse response) {
+        return this.feedbackService.commentComment(Long.parseLong(parameters.get("postId")), commentRequest.getIdWhatEver(),
+                commentRequest.getUserName(), commentRequest.getAtUserName(), commentRequest.getContent(), response);
     }
 
 }

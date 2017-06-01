@@ -1,6 +1,8 @@
 package tech.caols.infinitely.services.impl;
 
 import org.apache.http.HttpResponse;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import tech.caols.infinitely.consts.ConfigsKeys;
 import tech.caols.infinitely.datamodels.*;
 import tech.caols.infinitely.repositories.*;
@@ -13,9 +15,10 @@ import tech.caols.infinitely.viewmodels.CommentView;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class FeedbackServiceImpl implements FeedbackService {
+
+    private static final Logger logger = LogManager.getLogger(FeedbackServiceImpl.class);
 
     private PostRepository postRepository = new PostRepository();
     private CommentRepository commentRepository = new CommentRepository();
@@ -45,8 +48,10 @@ public class FeedbackServiceImpl implements FeedbackService {
         List<CommentDetailData> all = this.commentDetailRepository.findAllByPostId(postId);
         List<CommentView> ret = new ArrayList<>();
 
+        all.forEach(logger::info);
+
         for (CommentDetailData commentDetailData : all) {
-            if (commentDetailData.getPostId() != null) {
+            if (commentDetailData.getCommentId() == 0 || commentDetailData.getCommentId() == null) {
                 CommentView commentView = new CommentView();
                 BeanUtils.copyBean(commentDetailData, commentView);
                 ret.add(0, commentView);
@@ -54,7 +59,7 @@ public class FeedbackServiceImpl implements FeedbackService {
         }
 
         for (CommentDetailData commentDetailData : all) {
-            if (commentDetailData.getPostId() == null) {
+            if (commentDetailData.getCommentId() > 0 && commentDetailData.getCommentId() != null) {
                 CommentView commentView = new CommentView();
                 BeanUtils.copyBean(commentDetailData, commentView);
                 for (CommentView view : ret) {
@@ -109,7 +114,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     }
 
     @Override
-    public CommentView commentComment(Long commentId, String userName, String atUserName, String content, HttpResponse response) {
+    public CommentView commentComment(Long postId, Long commentId, String userName, String atUserName, String content, HttpResponse response) {
         UserData user = this.userRepository.findUserByUserName(userName);
         if (null == user) {
             HttpUtils.response(response, JsonRes.getFailJsonRes("评论用户不存在！"));
@@ -125,6 +130,7 @@ public class FeedbackServiceImpl implements FeedbackService {
         CommentData commentData = new CommentData();
         commentData.setUserId(user.getId());
         commentData.setAtUserId(atUser.getId());
+        commentData.setPostId(postId);
         commentData.setCommentId(commentId);
         commentData.setContent(content);
         commentData.setCreate(new Date());

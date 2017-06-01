@@ -105,4 +105,19 @@ public class CommentDetailData {
     public void setCreate(Date create) {
         this.create = create;
     }
+
+    @Override
+    public String toString() {
+        return "CommentDetailData{" +
+                "id=" + id +
+                ", postId=" + postId +
+                ", commentId=" + commentId +
+                ", atUserId=" + atUserId +
+                ", atUserName='" + atUserName + '\'' +
+                ", userId='" + userId + '\'' +
+                ", userName='" + userName + '\'' +
+                ", content='" + content + '\'' +
+                ", create=" + create +
+                '}';
+    }
 }

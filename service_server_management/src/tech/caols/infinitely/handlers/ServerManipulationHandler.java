@@ -40,14 +40,14 @@ public class ServerManipulationHandler implements HttpRequestHandler {
         String target = this.serverRoot + at + "/" + serverFileName + ".jar";
         switch (aDo) {
             case "start":
-                SimpleUtils.run("java -jar " + target + " start", false);
+                SimpleUtils.run("nohup java -jar " + target + " start &", false);
                 break;
             case "stop":
-                SimpleUtils.run("java -jar " + target + " stop", false);
+                SimpleUtils.run("nohup java -jar " + target + " stop &", false);
                 break;
             case "restart":
                 SimpleUtils.run("java -jar " + target + " stop", true);
-                SimpleUtils.run("java -jar " + target + " start", false);
+                SimpleUtils.run("nohup java -jar " + target + " start &", false);
                 break;
             case "deploy":
                 String zipFile = this.uploadRoot + at + ".zip";

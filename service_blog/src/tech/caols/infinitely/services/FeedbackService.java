@@ -13,6 +13,6 @@ public interface FeedbackService {
 
     CommentView commentPost(Long postId, String userName, String atUserName, String content, HttpResponse response);
 
-    CommentView commentComment(Long commentId, String userName, String atUserName, String content, HttpResponse response);
+    CommentView commentComment(Long postId, Long commentId, String userName, String atUserName, String content, HttpResponse response);
 
 }
