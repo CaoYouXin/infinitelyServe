@@ -4,7 +4,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.text.DateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 @Entity
 @Table(name = "category")
@@ -86,5 +88,19 @@ public class CategoryData {
 
     public void setDisabled(byte disabled) {
         this.disabled = disabled;
+    }
+
+    @Override
+    public String toString() {
+        DateFormat dateTimeInstance = DateFormat.getDateTimeInstance();
+        return "CategoryData{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", create=" + dateTimeInstance.format(create) +
+                ", update=" + dateTimeInstance.format(update) +
+                ", url='" + url + '\'' +
+                ", script='" + script + '\'' +
+                ", disabled=" + disabled +
+                '}';
     }
 }

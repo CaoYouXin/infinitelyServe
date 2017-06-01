@@ -23,7 +23,7 @@ public class FeedbackController {
     }
 
     @RestAPI(name = "list_comments", url = "/feedback/comment/list", target = RestTarget.GET)
-    public List<List<CommentView>> list(Map<String, String> parameters, HttpResponse response) {
+    public List<CommentView> list(Map<String, String> parameters, HttpResponse response) {
         return this.feedbackService.listComments(Long.parseLong(parameters.get("postId")), response);
     }
 
@@ -34,7 +34,7 @@ public class FeedbackController {
     }
 
     @RestAPI(name = "comment_comment", url = "/feedback/comment/comment", target = RestTarget.POST)
-    public List<CommentView> commentComment(CommentRequest commentRequest, HttpResponse response) {
+    public CommentView commentComment(CommentRequest commentRequest, HttpResponse response) {
         return this.feedbackService.commentComment(commentRequest.getIdWhatEver(), commentRequest.getUserName(),
                 commentRequest.getAtUserName(), commentRequest.getContent(), response);
     }

@@ -1,14 +1,9 @@
 package tech.caols.infinitely.services.impl;
 
 import org.apache.http.HttpResponse;
-import tech.caols.infinitely.datamodels.CommentData;
-import tech.caols.infinitely.datamodels.CommentDetailData;
-import tech.caols.infinitely.datamodels.PostData;
-import tech.caols.infinitely.datamodels.UserData;
-import tech.caols.infinitely.repositories.CommentDetailRepository;
-import tech.caols.infinitely.repositories.CommentRepository;
-import tech.caols.infinitely.repositories.PostRepository;
-import tech.caols.infinitely.repositories.UserRepository;
+import tech.caols.infinitely.consts.ConfigsKeys;
+import tech.caols.infinitely.datamodels.*;
+import tech.caols.infinitely.repositories.*;
 import tech.caols.infinitely.rest.BeanUtils;
 import tech.caols.infinitely.server.HttpUtils;
 import tech.caols.infinitely.server.JsonRes;
@@ -26,6 +21,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     private CommentRepository commentRepository = new CommentRepository();
     private CommentDetailRepository commentDetailRepository = new CommentDetailRepository();
     private UserRepository userRepository = new UserRepository();
+    private ConfigsRepository configsRepository = new ConfigsRepository();
 
     @Override
     public synchronized Integer like(Long postId, HttpResponse response) {
@@ -45,35 +41,31 @@ public class FeedbackServiceImpl implements FeedbackService {
     }
 
     @Override
-    public List<List<CommentView>> listComments(Long postId, HttpResponse response) {
+    public List<CommentView> listComments(Long postId, HttpResponse response) {
         List<CommentDetailData> all = this.commentDetailRepository.findAllByPostId(postId);
+        List<CommentView> ret = new ArrayList<>();
 
-        List<List<CommentView>> ret = new ArrayList<>();
-        List<Long> commentIds = new ArrayList<>();
-        try {
-            all.forEach(commentData -> {
+        for (CommentDetailData commentDetailData : all) {
+            if (commentDetailData.getPostId() != null) {
                 CommentView commentView = new CommentView();
-                BeanUtils.copyBean(commentData, commentView);
+                BeanUtils.copyBean(commentDetailData, commentView);
+                ret.add(0, commentView);
+            }
+        }
 
-                if (commentData.getCommentId() == null) {
-                    ArrayList<CommentView> group = new ArrayList<>();
-                    group.add(commentView);
-                    ret.add(group);
-                    commentIds.add(commentData.getId());
-                } else if (commentIds.contains(commentData.getCommentId())) {
-                    ret.forEach(group -> {
-                        if (group.get(0).getId().equals(commentData.getCommentId())) {
-                            group.add(commentView);
+        for (CommentDetailData commentDetailData : all) {
+            if (commentDetailData.getPostId() == null) {
+                CommentView commentView = new CommentView();
+                BeanUtils.copyBean(commentDetailData, commentView);
+                for (CommentView view : ret) {
+                    if (view.getId().equals(commentView.getCommentId())) {
+                        if (view.getFollows() == null) {
+                            view.setFollows(new ArrayList<>());
                         }
-                    });
-                } else {
-                    throw new RuntimeException("评论数据有误！");
+                        view.getFollows().add(commentView);
+                    }
                 }
-
-            });
-        } catch (Exception e) {
-            HttpUtils.response(response, JsonRes.getFailJsonRes(e.getMessage()));
-            return null;
+            }
         }
 
         return ret;
@@ -87,18 +79,19 @@ public class FeedbackServiceImpl implements FeedbackService {
             return null;
         }
 
-        UserData atUser = this.userRepository.findUserByUserName(atUserName);
-        if (null == atUser) {
-            HttpUtils.response(response, JsonRes.getFailJsonRes("被评论用户不存在！"));
+        Configs byKey = this.configsRepository.findByKey(ConfigsKeys.AdminUserId);
+        if (byKey == null) {
+            HttpUtils.response(response, JsonRes.getFailJsonRes("管理员状态异常！"));
             return null;
         }
 
         CommentData commentData = new CommentData();
         commentData.setUserId(user.getId());
-        commentData.setAtUserId(atUser.getId());
+        commentData.setAtUserId(Long.parseLong(byKey.getValue()));
         commentData.setPostId(postId);
         commentData.setContent(content);
         commentData.setCreate(new Date());
+        commentData.setDisabled((byte) 0);
         if (!this.commentRepository.save(commentData)) {
             HttpUtils.response(response, JsonRes.getFailJsonRes("保存评论失败"));
             return null;
@@ -116,7 +109,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     }
 
     @Override
-    public List<CommentView> commentComment(Long commentId, String userName, String atUserName, String content, HttpResponse response) {
+    public CommentView commentComment(Long commentId, String userName, String atUserName, String content, HttpResponse response) {
         UserData user = this.userRepository.findUserByUserName(userName);
         if (null == user) {
             HttpUtils.response(response, JsonRes.getFailJsonRes("评论用户不存在！"));
@@ -135,16 +128,36 @@ public class FeedbackServiceImpl implements FeedbackService {
         commentData.setCommentId(commentId);
         commentData.setContent(content);
         commentData.setCreate(new Date());
+        commentData.setDisabled((byte) 0);
         if (!this.commentRepository.save(commentData)) {
             HttpUtils.response(response, JsonRes.getFailJsonRes("保存评论失败"));
             return null;
         }
 
-        return this.commentDetailRepository.findAllByCommentId(commentId).stream().map(commentDetailData -> {
-            CommentView commentView = new CommentView();
-            BeanUtils.copyBean(commentDetailData, commentView);
-            return commentView;
-        }).collect(Collectors.toList());
+        List<CommentDetailData> all = this.commentDetailRepository.findAllByCommentId(commentId);
+        CommentView ret = new CommentView();
+
+        for (CommentDetailData commentDetailData : all) {
+            if (commentDetailData.getId().equals(commentId)) {
+                CommentView commentView = new CommentView();
+                BeanUtils.copyBean(commentDetailData, commentView);
+                ret = commentView;
+            }
+        }
+
+        for (CommentDetailData commentDetailData : all) {
+            if (commentDetailData.getCommentId().equals(commentId)) {
+                CommentView commentView = new CommentView();
+                BeanUtils.copyBean(commentDetailData, commentView);
+
+                if (ret.getFollows() == null) {
+                    ret.setFollows(new ArrayList<>());
+                }
+                ret.getFollows().add(commentView);
+            }
+        }
+
+        return ret;
     }
 
 }

@@ -14,12 +14,13 @@ import java.math.BigDecimal;
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 public class Repository<T, ID> {
 
     private static final Logger logger = LogManager.getLogger(Repository.class);
 
-    private static final Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC+8"));
+    private static final Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"));
 
     private final Class<T> clazz;
     private List<ColumnMapping> mappings;
@@ -302,19 +303,32 @@ public class Repository<T, ID> {
 
 
     private boolean insert(T one) {
+        List<ColumnMapping> columns = this.columns().stream().filter(columnMapping -> {
+            String name = columnMapping.getField().getName();
+            String getterName = getDateManipulationMethodName(name, "get");
+            try {
+                Method getterMethod = this.clazz.getDeclaredMethod(getterName);
+                return getterMethod.invoke(one) != null;
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                logger.catching(e);
+                return false;
+            }
+        }).collect(Collectors.toList());
+
+        final StringJoiner columnsSj = new StringJoiner("`, `", "`", "`");
         final StringJoiner sj = new StringJoiner(", ", "", "");
-        List<ColumnMapping> columns = this.columns();
         columns.forEach(col -> {
             if (col.isKey()) {
                 return;
             }
+            columnsSj.add(col.getColumn().name());
             sj.add("?");
         });
         String sql = String.format("Insert into `%s`(%s) Values (%s)", this.tableName(),
-                this.columnsString(true), sj.toString());
+                columnsSj.toString(), sj.toString());
 
         try (Connection conn = DatasourceFactory.getMySQLDataSource().getConnection()) {
-            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            PreparedStatement preparedStatement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             logger.info(sql);
 
             int index = 0;

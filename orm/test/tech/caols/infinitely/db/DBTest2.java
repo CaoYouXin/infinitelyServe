@@ -10,10 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.text.DateFormat;
-import java.util.Calendar;
-import java.util.Locale;
-import java.util.StringJoiner;
-import java.util.TimeZone;
+import java.util.*;
 
 public class DBTest2 {
 
@@ -36,7 +33,7 @@ public class DBTest2 {
             preparedStatement.setFloat(5, (float) Math.random());
             preparedStatement.setDouble(6, Math.random());
             preparedStatement.setBigDecimal(7, new BigDecimal("3.141592653"));
-            preparedStatement.setTimestamp(8, new Timestamp(dateTimeInstance.parse("2017-11-6 7:00:00").getTime()), calendar);
+            preparedStatement.setTimestamp(8, new Timestamp(new Date().getTime()), calendar);
             preparedStatement.setString(9, "3.141592653");
             preparedStatement.setCharacterStream(10, new StringReader("hello text from java"));
             preparedStatement.setBinaryStream(11, new FileInputStream(

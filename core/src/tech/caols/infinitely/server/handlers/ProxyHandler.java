@@ -120,16 +120,16 @@ public class ProxyHandler implements HttpRequestHandler {
                 HttpUtils.response(httpResponse, JsonRes.getFailJsonRes("one of the pre processors commands returning a fail."));
                 return;
             } else {
-                PreRes preRes = (PreRes) preRetObject.get(BODY);
+                Map preRes = (Map) preRetObject.get(BODY);
 
-                Map sets = preRes.getSet();
+                Map sets = (Map) preRes.get(Constants.OUT_SET);
                 if (null != sets) {
                     for (Object key : sets.keySet()) {
                         httpContext.setAttribute((String) key, sets.get(key));
                     }
                 }
 
-                List removes = preRes.getRemove();
+                List removes = (List) preRes.get(Constants.OUT_REMOVE);
                 if (null != removes) {
                     for (Object removeKey : removes) {
                         httpContext.removeAttribute((String) removeKey);

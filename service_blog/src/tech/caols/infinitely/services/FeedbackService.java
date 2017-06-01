@@ -9,10 +9,10 @@ public interface FeedbackService {
 
     Integer like(Long postId, HttpResponse response);
 
-    List<List<CommentView>> listComments(Long postId, HttpResponse response);
+    List<CommentView> listComments(Long postId, HttpResponse response);
 
     CommentView commentPost(Long postId, String userName, String atUserName, String content, HttpResponse response);
 
-    List<CommentView> commentComment(Long commentId, String userName, String atUserName, String content, HttpResponse response);
+    CommentView commentComment(Long commentId, String userName, String atUserName, String content, HttpResponse response);
 
 }

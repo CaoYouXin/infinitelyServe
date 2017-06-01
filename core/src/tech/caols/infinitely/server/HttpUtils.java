@@ -15,6 +15,8 @@ import tech.caols.infinitely.Constants;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class HttpUtils {
@@ -24,6 +26,9 @@ public class HttpUtils {
     public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     static {
         OBJECT_MAPPER.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+        OBJECT_MAPPER.setDateFormat(dateFormat);
     }
 
     public static String getMethod(HttpRequest httpRequest) {

@@ -10,10 +10,8 @@ public class PostView {
     private Long id;
     private String name;
 
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
     private Date create;
 
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
     private Date update;
 
     private String url;

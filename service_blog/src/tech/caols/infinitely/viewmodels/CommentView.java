@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.Column;
 import java.util.Date;
+import java.util.List;
 
 public class CommentView {
 
@@ -14,8 +15,9 @@ public class CommentView {
     private String userName;
     private String content;
 
-    @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd HH:mm:ss")
     private Date create;
+
+    private List<CommentView> follows;
 
     public CommentView() {
     }
@@ -76,4 +78,11 @@ public class CommentView {
         this.create = create;
     }
 
+    public List<CommentView> getFollows() {
+        return follows;
+    }
+
+    public void setFollows(List<CommentView> follows) {
+        this.follows = follows;
+    }
 }

@@ -25,8 +25,8 @@ public class DBTest1 {
         DateFormat dateTimeInstance = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM, Locale.CHINA);
 
         try (Connection conn = DatasourceFactory.getMySQLDataSource().getConnection()) {
-            PreparedStatement preparedStatement = conn.prepareStatement("Select * from test where idtest = ?");
-            preparedStatement.setInt(1, 1);
+            PreparedStatement preparedStatement = conn.prepareStatement("Select * from `test`");
+//            preparedStatement.setInt(1, 1);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 StringJoiner sj = new StringJoiner(", ", "{", "}");

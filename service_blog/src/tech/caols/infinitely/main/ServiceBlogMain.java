@@ -7,7 +7,9 @@ import tech.caols.infinitely.cmd.Stop;
 import tech.caols.infinitely.config.ConfigUtil;
 import tech.caols.infinitely.config.SimpleConfig;
 import tech.caols.infinitely.controllers.CategoryController;
+import tech.caols.infinitely.controllers.FeedbackController;
 import tech.caols.infinitely.controllers.PostController;
+import tech.caols.infinitely.controllers.SearchController;
 import tech.caols.infinitely.rest.RestHelper;
 import tech.caols.infinitely.server.SimpleServer;
 
@@ -24,7 +26,9 @@ public class ServiceBlogMain {
 
             RestHelper restHelper = new RestHelper(simpleServer);
             restHelper.addRestObject(new CategoryController())
-                    .addRestObject(new PostController());
+                    .addRestObject(new PostController())
+                    .addRestObject(new SearchController())
+                    .addRestObject(new FeedbackController());
 
             simpleServer.start(() -> {
                 logger.info("service [ServiceBlogMain] started.");
