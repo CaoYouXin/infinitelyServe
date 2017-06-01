@@ -45,7 +45,7 @@ public class PostDetailRepository extends Repository<PostDetailData, Long> {
                         " a.brief PostDetailData.brief, a.like PostDetailData.like," +
                         " a.platform PostDetailData.platform, a.resourceLevelId PostDetailData.resourceLevelId," +
                         " c.name PostDetailData.resourceLevelName From PostData a, CategoryData b, LevelData c" +
-                        " Where a.categoryId = b.id and a.disabled = 0 and c.name in %s" +
+                        " Where a.categoryId = b.id and a.resourceLevelId = c.id and a.disabled = 0 and c.name in %s" +
                         " and a.platform in %s and b.name = ?",
                 resourceLevelsStringJoiner.toString(), platformsStringJoiner.toString()),
                 new String[]{"tech.caols.infinitely.datamodels."}, category);
@@ -65,7 +65,7 @@ public class PostDetailRepository extends Repository<PostDetailData, Long> {
                         " a.brief PostDetailData.brief, a.like PostDetailData.like," +
                         " a.platform PostDetailData.platform, a.resourceLevelId PostDetailData.resourceLevelId," +
                         " c.name PostDetailData.resourceLevelName From PostData a, CategoryData b, LevelData c" +
-                        " Where a.categoryId = b.id and a.name = ? and a.disabled = 0 and c.name in %s",
+                        " Where a.categoryId = b.id and a.resourceLevelId = c.id and a.name = ? and a.disabled = 0 and c.name in %s",
                 resourceLevelsStringJoiner.toString()),
                 new String[]{"tech.caols.infinitely.datamodels."}, name);
 
@@ -92,14 +92,14 @@ public class PostDetailRepository extends Repository<PostDetailData, Long> {
         }
 
         return super.query(String.format("Select a.id PostDetailData.id, a.name PostDetailData.name," +
-                " a.create PostDetailData.create, a.update PostDetailData.update," +
+                        " a.create PostDetailData.create, a.update PostDetailData.update," +
                         " a.url PostDetailData.url, a.categoryId PostDetailData.categoryId," +
                         " b.name PostDetailData.categoryName, a.type PostDetailData.type," +
                         " a.script PostDetailData.script, a.screenshot PostDetailData.screenshot," +
                         " a.brief PostDetailData.brief, a.like PostDetailData.like," +
                         " a.platform PostDetailData.platform, a.resourceLevelId PostDetailData.resourceLevelId," +
                         " c.name PostDetailData.resourceLevelName From PostData a, CategoryData b, LevelData c" +
-                        " Where a.categoryId = b.id and a.update > ? and a.update < ? and" +
+                        " Where a.categoryId = b.id and a.resourceLevelId = c.id and a.update > ? and a.update < ? and" +
                         " a.platform in %s and %s and a.disabled = 0 and c.name in %s",
                 platformsStringJoiner.toString(), keywordsStringJoiner.toString(), resourceLevelsStringJoiner.toString()),
                 new String[]{"tech.caols.infinitely.datamodels."}, start, end);
@@ -136,11 +136,57 @@ public class PostDetailRepository extends Repository<PostDetailData, Long> {
                         " a.brief PostDetailData.brief, a.like PostDetailData.like," +
                         " a.platform PostDetailData.platform, a.resourceLevelId PostDetailData.resourceLevelId," +
                         " c.name PostDetailData.resourceLevelName From PostData a, CategoryData b, LevelData c" +
-                        " Where a.categoryId = b.id and b.update > ? and b.update < ? and" +
+                        " Where a.categoryId = b.id and a.resourceLevelId = c.id and b.update > ? and b.update < ? and" +
                         " %s and a.update > ? and a.update < ? and a.platform in %s and %s and a.disabled = 0" +
                         " and c.name in %s", categoryKeywordsStringJoiner.toString(), platformsStringJoiner.toString(),
                 postKeywordsStringJoiner.toString(), resourceLevelsStringJoiner.toString()),
                 new String[]{"tech.caols.infinitely.datamodels."}, categoryStart, categoryEnd, postStart, postEnd);
+    }
+
+    public PostDetailData sibling(Date date, boolean greater, String resourceLevels) {
+        StringJoiner resourceLevelsStringJoiner = new StringJoiner("', '", "('", "')");
+        for (String s : resourceLevels.split(",")) {
+            resourceLevelsStringJoiner.add(s);
+        }
+
+        List<PostDetailData> postDetailDataList = super.query(String.format(
+                "Select a.id PostDetailData.id, a.name PostDetailData.name," +
+                        " a.create PostDetailData.create, a.update PostDetailData.update," +
+                        " a.url PostDetailData.url, a.categoryId PostDetailData.categoryId," +
+                        " b.name PostDetailData.categoryName, a.type PostDetailData.type," +
+                        " a.script PostDetailData.script, a.screenshot PostDetailData.screenshot," +
+                        " a.brief PostDetailData.brief, a.like PostDetailData.like," +
+                        " a.platform PostDetailData.platform, a.resourceLevelId PostDetailData.resourceLevelId," +
+                        " c.name PostDetailData.resourceLevelName From PostData a, CategoryData b, LevelData c" +
+                        " Where a.categoryId = b.id and a.resourceLevelId = c.id and a.update %s ?" +
+                        " Order By a.update %s Limit 1", greater ? ">" : "<", greater ? "asc" : "desc"
+                ),
+                new String[]{"tech.caols.infinitely.datamodels."}, date);
+
+        if (postDetailDataList.isEmpty()) {
+            return null;
+        }
+        return postDetailDataList.get(0);
+    }
+
+    public List<PostDetailData> top(int count, String resourceLevels) {
+        StringJoiner resourceLevelsStringJoiner = new StringJoiner("', '", "('", "')");
+        for (String s : resourceLevels.split(",")) {
+            resourceLevelsStringJoiner.add(s);
+        }
+
+        return super.query(String.format(
+                "Select a.id PostDetailData.id, a.name PostDetailData.name," +
+                        " a.create PostDetailData.create, a.update PostDetailData.update," +
+                        " a.url PostDetailData.url, a.categoryId PostDetailData.categoryId," +
+                        " b.name PostDetailData.categoryName, a.type PostDetailData.type," +
+                        " a.script PostDetailData.script, a.screenshot PostDetailData.screenshot," +
+                        " a.brief PostDetailData.brief, a.like PostDetailData.like," +
+                        " a.platform PostDetailData.platform, a.resourceLevelId PostDetailData.resourceLevelId," +
+                        " c.name PostDetailData.resourceLevelName From PostData a, CategoryData b, LevelData c" +
+                        " Where a.categoryId = b.id and a.resourceLevelId = c.id Order By a.like desc Limit %d", count
+                ),
+                new String[]{"tech.caols.infinitely.datamodels."});
     }
 
 }

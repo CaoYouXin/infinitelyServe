@@ -65,4 +65,42 @@ public class PostServiceImpl extends BaseServiceImpl<PostData, PostView> impleme
         BeanUtils.copyBean(postDetailData, postView);
         return postView;
     }
+
+    @Override
+    public PostView previous(Date date, HttpResponse response, HttpContext context) {
+        PostDetailData sibling = this.postDetailRepository.sibling(date, false, UserLevelUtil.getUserLevels(context));
+        if (null == sibling) {
+            PostView ret = new PostView();
+            ret.setName("没有上一篇了");
+            return ret;
+        }
+
+        PostView ret = new PostView();
+        BeanUtils.copyBean(sibling, ret);
+        return ret;
+    }
+
+    @Override
+    public PostView next(Date date, HttpResponse response, HttpContext context) {
+        PostDetailData sibling = this.postDetailRepository.sibling(date, true, UserLevelUtil.getUserLevels(context));
+        if (null == sibling) {
+            PostView ret = new PostView();
+            ret.setName("没有下一篇了");
+            return ret;
+        }
+
+        PostView ret = new PostView();
+        BeanUtils.copyBean(sibling, ret);
+        return ret;
+    }
+
+    @Override
+    public List<PostView> top5(HttpContext context) {
+        return this.postDetailRepository.top(5, UserLevelUtil.getUserLevels(context))
+                .stream().map(postDetailData -> {
+                    PostView postView = new PostView();
+                    BeanUtils.copyBean(postDetailData, postView);
+                    return postView;
+                }).collect(Collectors.toList());
+    }
 }
