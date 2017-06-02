@@ -5,7 +5,6 @@ import java.util.Date;
 public class UserView {
 
     private String userName;
-    private String password;
     private String phone;
     private Date createTime;
     private String email;
@@ -20,14 +19,6 @@ public class UserView {
 
     public void setUserName(String userName) {
         this.userName = userName;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getPhone() {
@@ -90,7 +81,6 @@ public class UserView {
     public String toString() {
         return "UserView{" +
                 "userName='" + userName + '\'' +
-                ", password='" + password + '\'' +
                 ", phone='" + phone + '\'' +
                 ", createTime=" + createTime +
                 ", email='" + email + '\'' +
