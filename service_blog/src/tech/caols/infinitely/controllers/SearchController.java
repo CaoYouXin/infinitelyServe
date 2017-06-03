@@ -16,20 +16,18 @@ public class SearchController {
     private SearchService searchService = new SearchServiceImpl();
 
     @RestAPI(name = "search_category", url = "/search/category", target = RestTarget.POST)
-    public List<CategoryView> search4Category(CategorySearch categorySearch) {
-        return this.searchService.search4Categories(categorySearch.getStart(), categorySearch.getEnd(), categorySearch.getKeywords());
+    public List<CategoryView> search4Category(CategorySearch categorySearch, HttpContext context) {
+        return this.searchService.search4Categories(categorySearch, context);
     }
 
     @RestAPI(name = "search_post", url = "/search/post", target = RestTarget.POST)
     public List<PostView> search4Post(PostSearch postSearch, HttpContext context) {
-        return this.searchService.search4Post(postSearch.getStart(), postSearch.getEnd(), postSearch.getKeywords(), postSearch.getPlatform(), context);
+        return this.searchService.search4Post(postSearch, context);
     }
 
     @RestAPI(name = "search_post_with_category", url = "/search/post_with_category", target = RestTarget.POST)
     public List<PostView> search4Post(PostSearchWithCategory postSearchWithCategory, HttpContext context) {
-        return this.searchService.search4Post(postSearchWithCategory.getCategoryStart(), postSearchWithCategory.getCategoryEnd(),
-                postSearchWithCategory.getCategoryKeywords(), postSearchWithCategory.getPostStart(), postSearchWithCategory.getPostEnd(),
-                postSearchWithCategory.getPostKeywords(), postSearchWithCategory.getPlatform(), context);
+        return this.searchService.search4Post(postSearchWithCategory, context);
     }
 
 }

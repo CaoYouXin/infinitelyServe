@@ -2,6 +2,11 @@ package tech.caols.infinitely.repositories;
 
 import tech.caols.infinitely.datamodels.PostDetailData;
 import tech.caols.infinitely.db.Repository;
+import tech.caols.infinitely.rest.BeanUtils;
+import tech.caols.infinitely.viewmodels.CategorySearch;
+import tech.caols.infinitely.viewmodels.PostSearch;
+import tech.caols.infinitely.viewmodels.PostSearchWithCategory;
+import tech.caols.infinitely.viewmodels.SearchReq;
 
 import java.util.Date;
 import java.util.List;
@@ -75,21 +80,23 @@ public class PostDetailRepository extends Repository<PostDetailData, Long> {
         return null;
     }
 
-    public List<PostDetailData> search(Date start, Date end, List<String> keywords, String platforms, String resourceLevels) {
-        StringJoiner platformsStringJoiner = new StringJoiner("', '", "('", "')");
-        for (String s : platforms.split(",")) {
-            platformsStringJoiner.add(s);
+    public List<PostDetailData> search(CategorySearch categorySearch, String resourceLevels) {
+        StringJoiner platformsStringJoiner = new StringJoiner(" or ", "( ", " )");
+        for (String s : categorySearch.getPlatform().split(",")) {
+            platformsStringJoiner.add(String.format("a.platform = '%s'", s));
         }
 
         StringJoiner keywordsStringJoiner = new StringJoiner(" and ");
-        keywords.forEach(keyword -> {
-            keywordsStringJoiner.add(String.format("a.name like '%%%s%%'", keyword));
+        categorySearch.getKeywords().forEach(keyword -> {
+            keywordsStringJoiner.add(String.format("b.name like '%%%s%%'", keyword));
         });
 
-        StringJoiner resourceLevelsStringJoiner = new StringJoiner("', '", "('", "')");
+        StringJoiner resourceLevelsStringJoiner = new StringJoiner(" or ", "( ", " )");
         for (String s : resourceLevels.split(",")) {
-            resourceLevelsStringJoiner.add(s);
+            resourceLevelsStringJoiner.add(String.format("c.name = '%s'", s));
         }
+
+        String timeConditions = timeConditions(categorySearch);
 
         return super.query(String.format("Select a.id PostDetailData.id, a.name PostDetailData.name," +
                         " a.create PostDetailData.create, a.update PostDetailData.update," +
@@ -98,35 +105,108 @@ public class PostDetailRepository extends Repository<PostDetailData, Long> {
                         " a.script PostDetailData.script, a.screenshot PostDetailData.screenshot," +
                         " a.brief PostDetailData.brief, a.like PostDetailData.like," +
                         " a.platform PostDetailData.platform, a.resourceLevelId PostDetailData.resourceLevelId," +
-                        " c.name PostDetailData.resourceLevelName From PostData a, CategoryData b, LevelData c" +
-                        " Where a.categoryId = b.id and a.resourceLevelId = c.id and a.update > ? and a.update < ? and" +
-                        " a.platform in %s and %s and a.disabled = 0 and c.name in %s",
-                platformsStringJoiner.toString(), keywordsStringJoiner.toString(), resourceLevelsStringJoiner.toString()),
-                new String[]{"tech.caols.infinitely.datamodels."}, start, end);
+                        " c.name PostDetailData.resourceLevelName From PostData a, CategoryData b, LevelData c, PostIndexData d" +
+                        " Where a.categoryId = b.id and a.resourceLevelId = c.id and a.id = d.postId" +
+                        " and %s and %s and a.disabled = 0 and d.disabled = 0 and %s and %s",
+                (categorySearch.getPlatform() == null || categorySearch.getPlatform().equals("")) ? "true" : platformsStringJoiner.toString(),
+                (categorySearch.getKeywords() == null || categorySearch.getKeywords().isEmpty()) ? "true" : keywordsStringJoiner.toString(),
+                (resourceLevels.equals("")) ? "true" : resourceLevelsStringJoiner.toString(),
+                (timeConditions.equals("")) ? "true" : timeConditions),
+                new String[]{"tech.caols.infinitely.datamodels."});
     }
 
-    public List<PostDetailData> searchWithCategory(Date categoryStart, Date categoryEnd, List<String> categoryKeywords,
-                                                   Date postStart, Date postEnd, List<String> postKeywords, String platforms,
-                                                   String resourceLevels) {
-        StringJoiner platformsStringJoiner = new StringJoiner("', '", "('", "')");
-        for (String s : platforms.split(",")) {
-            platformsStringJoiner.add(s);
+    private String timeConditions(SearchReq searchReq) {
+        StringJoiner timeStringJoiner = new StringJoiner(" and ");
+
+        if (searchReq.getYearStart() != null) {
+            if (searchReq.getYearEnd() != null) {
+                timeStringJoiner.add(String.format("d.year >= %d", searchReq.getYearStart()));
+                timeStringJoiner.add(String.format("d.year <= %d", searchReq.getYearEnd()));
+            } else {
+                timeStringJoiner.add(String.format("d.year = %d", searchReq.getYearStart()));
+            }
+        }
+
+        if (searchReq.getMonthStart() != null) {
+            if (searchReq.getMonthEnd() != null) {
+                timeStringJoiner.add(String.format("d.month >= %d", searchReq.getMonthStart()));
+                timeStringJoiner.add(String.format("d.month <= %d", searchReq.getMonthEnd()));
+            } else {
+                timeStringJoiner.add(String.format("d.month = %d", searchReq.getMonthStart()));
+            }
+        }
+
+        if (searchReq.getDayStart() != null) {
+            if (searchReq.getDayEnd() != null) {
+                timeStringJoiner.add(String.format("d.day >= %d", searchReq.getDayStart()));
+                timeStringJoiner.add(String.format("d.day <= %d", searchReq.getDayEnd()));
+            } else {
+                timeStringJoiner.add(String.format("d.day = %d", searchReq.getDayStart()));
+            }
+        }
+
+        return timeStringJoiner.toString();
+    }
+
+    public List<PostDetailData> search(PostSearch postSearch, String resourceLevels) {
+        StringJoiner platformsStringJoiner = new StringJoiner(" or ", "( ", " )");
+        for (String s : postSearch.getPlatform().split(",")) {
+            platformsStringJoiner.add(String.format("a.platform = '%s'", s));
+        }
+
+        StringJoiner keywordsStringJoiner = new StringJoiner(" and ");
+        postSearch.getKeywords().forEach(keyword -> {
+            keywordsStringJoiner.add(String.format("a.name like '%%%s%%'", keyword));
+        });
+
+        StringJoiner resourceLevelsStringJoiner = new StringJoiner(" or ", "( ", " )");
+        for (String s : resourceLevels.split(",")) {
+            resourceLevelsStringJoiner.add(String.format("c.name = '%s'", s));
+        }
+
+        String timeConditions = timeConditions(postSearch);
+
+        return super.query(String.format("Select a.id PostDetailData.id, a.name PostDetailData.name," +
+                        " a.create PostDetailData.create, a.update PostDetailData.update," +
+                        " a.url PostDetailData.url, a.categoryId PostDetailData.categoryId," +
+                        " b.name PostDetailData.categoryName, a.type PostDetailData.type," +
+                        " a.script PostDetailData.script, a.screenshot PostDetailData.screenshot," +
+                        " a.brief PostDetailData.brief, a.like PostDetailData.like," +
+                        " a.platform PostDetailData.platform, a.resourceLevelId PostDetailData.resourceLevelId," +
+                        " c.name PostDetailData.resourceLevelName From PostData a, CategoryData b, LevelData c, PostIndexData d" +
+                        " Where a.categoryId = b.id and a.resourceLevelId = c.id and a.id = d.postId" +
+                        " and %s and %s and a.disabled = 0 and d.disabled = 0 and %s and %s",
+                (postSearch.getPlatform() == null || postSearch.getPlatform().equals("")) ? "true" : platformsStringJoiner.toString(),
+                (postSearch.getKeywords() == null || postSearch.getKeywords().isEmpty()) ? "true" : keywordsStringJoiner.toString(),
+                (resourceLevels.equals("")) ? "true" : resourceLevelsStringJoiner.toString(),
+                (timeConditions.equals("")) ? "true" : timeConditions),
+                new String[]{"tech.caols.infinitely.datamodels."});
+    }
+
+    public List<PostDetailData> searchWithCategory(PostSearchWithCategory postSearchWithCategory, String resourceLevels) {
+        SearchReq searchReq = this.merge(postSearchWithCategory.getCategory(), postSearchWithCategory.getPost());
+
+        StringJoiner platformsStringJoiner = new StringJoiner(" or ", "( ", " )");
+        for (String s : searchReq.getPlatform().split(",")) {
+            platformsStringJoiner.add(String.format("a.platform = '%s'", s));
         }
 
         StringJoiner categoryKeywordsStringJoiner = new StringJoiner(" and ");
-        categoryKeywords.forEach(keyword -> {
+        postSearchWithCategory.getCategory().getKeywords().forEach(keyword -> {
             categoryKeywordsStringJoiner.add(String.format("b.name like '%%%s%%'", keyword));
         });
 
         StringJoiner postKeywordsStringJoiner = new StringJoiner(" and ");
-        postKeywords.forEach(keyword -> {
+        postSearchWithCategory.getPost().getKeywords().forEach(keyword -> {
             postKeywordsStringJoiner.add(String.format("a.name like '%%%s%%'", keyword));
         });
 
-        StringJoiner resourceLevelsStringJoiner = new StringJoiner("', '", "('", "')");
+        StringJoiner resourceLevelsStringJoiner = new StringJoiner(" or ", "( ", " )");
         for (String s : resourceLevels.split(",")) {
-            resourceLevelsStringJoiner.add(s);
+            resourceLevelsStringJoiner.add(String.format("c.name = '%s'", s));
         }
+
+        String timeConditions = timeConditions(searchReq);
 
         return super.query(String.format("Select a.id PostDetailData.id, a.name PostDetailData.name," +
                         " a.create PostDetailData.create, a.update PostDetailData.update," +
@@ -135,12 +215,40 @@ public class PostDetailRepository extends Repository<PostDetailData, Long> {
                         " a.script PostDetailData.script, a.screenshot PostDetailData.screenshot," +
                         " a.brief PostDetailData.brief, a.like PostDetailData.like," +
                         " a.platform PostDetailData.platform, a.resourceLevelId PostDetailData.resourceLevelId," +
-                        " c.name PostDetailData.resourceLevelName From PostData a, CategoryData b, LevelData c" +
-                        " Where a.categoryId = b.id and a.resourceLevelId = c.id and b.update > ? and b.update < ? and" +
-                        " %s and a.update > ? and a.update < ? and a.platform in %s and %s and a.disabled = 0" +
-                        " and c.name in %s", categoryKeywordsStringJoiner.toString(), platformsStringJoiner.toString(),
-                postKeywordsStringJoiner.toString(), resourceLevelsStringJoiner.toString()),
-                new String[]{"tech.caols.infinitely.datamodels."}, categoryStart, categoryEnd, postStart, postEnd);
+                        " c.name PostDetailData.resourceLevelName From PostData a, CategoryData b, LevelData c, PostIndexData d" +
+                        " Where a.categoryId = b.id and a.resourceLevelId = c.id and a.id = d.postId" +
+                        " and %s and %s and %s and a.disabled = 0 and d.disabled = 0 and %s and %s",
+                (searchReq.getPlatform() == null || searchReq.getPlatform().equals("")) ? "true" : platformsStringJoiner.toString(),
+                (postSearchWithCategory.getCategory().getKeywords() == null || postSearchWithCategory.getCategory().getKeywords().isEmpty())
+                        ? "true" : categoryKeywordsStringJoiner.toString(),
+                (postSearchWithCategory.getPost().getKeywords() == null || postSearchWithCategory.getPost().getKeywords().isEmpty())
+                        ? "true" : postKeywordsStringJoiner.toString(),
+                (resourceLevels.equals("")) ? "true" : resourceLevelsStringJoiner.toString(),
+                (timeConditions.equals("")) ? "true" : timeConditions),
+                new String[]{"tech.caols.infinitely.datamodels."});
+    }
+
+    private SearchReq merge(SearchReq searchReq1, SearchReq searchReq2) {
+        if (searchReq1.getPlatform() != null) {
+            if (searchReq2.getPlatform() != null) {
+                if (!searchReq1.getPlatform().equals(searchReq2.getPlatform())) {
+                    throw new RuntimeException("同一请求中要求的Platform不相同");
+                }
+            }
+        } else {
+            if (searchReq2.getPlatform() == null) {
+                throw new RuntimeException("请求中未包含Platform字段");
+            }
+            searchReq1.setPlatform(searchReq2.getPlatform());
+        }
+
+        searchReq1.setYearStart(Math.min(searchReq1.getYearStart(), searchReq2.getYearStart()));
+        searchReq1.setYearEnd(Math.max(searchReq1.getYearEnd(), searchReq2.getYearEnd()));
+        searchReq1.setMonthStart(Math.min(searchReq1.getMonthStart(), searchReq2.getMonthStart()));
+        searchReq1.setMonthEnd(Math.max(searchReq1.getMonthEnd(), searchReq2.getMonthEnd()));
+        searchReq1.setDayStart(Math.min(searchReq1.getDayStart(), searchReq2.getDayStart()));
+        searchReq1.setDayEnd(Math.max(searchReq1.getDayEnd(), searchReq2.getDayEnd()));
+        return searchReq1;
     }
 
     public PostDetailData sibling(Date date, boolean greater, String resourceLevels) {

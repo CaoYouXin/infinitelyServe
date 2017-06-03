@@ -6,8 +6,7 @@ import tech.caols.infinitely.repositories.PostDetailRepository;
 import tech.caols.infinitely.rest.BeanUtils;
 import tech.caols.infinitely.services.SearchService;
 import tech.caols.infinitely.utils.UserLevelUtil;
-import tech.caols.infinitely.viewmodels.CategoryView;
-import tech.caols.infinitely.viewmodels.PostView;
+import tech.caols.infinitely.viewmodels.*;
 
 import java.util.Date;
 import java.util.List;
@@ -19,17 +18,17 @@ public class SearchServiceImpl implements SearchService {
     private PostDetailRepository postDetailRepository = new PostDetailRepository();
 
     @Override
-    public List<CategoryView> search4Categories(Date start, Date end, List<String> keywords) {
-        return this.categoryRepository.search(start, end, keywords).stream().map(categoryData -> {
+    public List<CategoryView> search4Categories(CategorySearch categorySearch, HttpContext context) {
+        return this.postDetailRepository.search(categorySearch, UserLevelUtil.getUserLevels(context)).stream().map(postDetailData -> {
             CategoryView categoryView = new CategoryView();
-            BeanUtils.copyBean(categoryData, categoryView);
+            categoryView.setName(postDetailData.getCategoryName());
             return categoryView;
         }).collect(Collectors.toList());
     }
 
     @Override
-    public List<PostView> search4Post(Date start, Date end, List<String> keywords, String platforms, HttpContext context) {
-        return this.postDetailRepository.search(start, end, keywords, platforms, UserLevelUtil.getUserLevels(context)).stream().map(postDetailData -> {
+    public List<PostView> search4Post(PostSearch postSearch, HttpContext context) {
+        return this.postDetailRepository.search(postSearch, UserLevelUtil.getUserLevels(context)).stream().map(postDetailData -> {
             PostView postView = new PostView();
             BeanUtils.copyBean(postDetailData, postView);
             return postView;
@@ -37,8 +36,8 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public List<PostView> search4Post(Date categoryStart, Date categoryEnd, List<String> categoryKeywords, Date postStart, Date postEnd, List<String> postKeywords, String platforms, HttpContext context) {
-        return this.postDetailRepository.searchWithCategory(categoryStart, categoryEnd, categoryKeywords, postStart, postEnd, postKeywords, platforms, UserLevelUtil.getUserLevels(context)).stream().map(postDetailData -> {
+    public List<PostView> search4Post(PostSearchWithCategory postSearchWithCategory, HttpContext context) {
+        return this.postDetailRepository.searchWithCategory(postSearchWithCategory, UserLevelUtil.getUserLevels(context)).stream().map(postDetailData -> {
             PostView postView = new PostView();
             BeanUtils.copyBean(postDetailData, postView);
             return postView;

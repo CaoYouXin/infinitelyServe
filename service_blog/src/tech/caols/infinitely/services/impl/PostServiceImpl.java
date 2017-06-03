@@ -4,8 +4,12 @@ import org.apache.http.HttpResponse;
 import org.apache.http.protocol.HttpContext;
 import tech.caols.infinitely.datamodels.PostData;
 import tech.caols.infinitely.datamodels.PostDetailData;
+import tech.caols.infinitely.datamodels.PostIndexData;
+import tech.caols.infinitely.db.helper.DBHelper;
 import tech.caols.infinitely.repositories.PostDetailRepository;
 import tech.caols.infinitely.base.BaseServiceImpl;
+import tech.caols.infinitely.repositories.PostIndexRepository;
+import tech.caols.infinitely.repositories.PostRepository;
 import tech.caols.infinitely.rest.BeanUtils;
 import tech.caols.infinitely.server.HttpUtils;
 import tech.caols.infinitely.server.JsonRes;
@@ -13,13 +17,17 @@ import tech.caols.infinitely.services.PostService;
 import tech.caols.infinitely.utils.UserLevelUtil;
 import tech.caols.infinitely.viewmodels.PostView;
 
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class PostServiceImpl extends BaseServiceImpl<PostData, PostView> implements PostService {
 
+    private PostRepository postRepository = new PostRepository();
     private PostDetailRepository postDetailRepository = new PostDetailRepository();
+    private PostIndexRepository postIndexRepository = new PostIndexRepository();
 
     public PostServiceImpl() {
         super(PostData.class, PostView.class);
@@ -41,7 +49,45 @@ public class PostServiceImpl extends BaseServiceImpl<PostData, PostView> impleme
         }
         postView.setUpdate(new Date());
 
-        return super.save(postView, response);
+        PostData postData = new PostData();
+        BeanUtils.copyBean(postView, postData);
+
+        if (!this.postRepository.save(postData)) {
+            HttpUtils.response(response, JsonRes.getFailJsonRes(String.format("保存Post失败! ")));
+            return null;
+        }
+
+        Date update = postData.getUpdate();
+        String format = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.CHINA).format(update);
+        String year = null, month = null, day = null;
+        int indexOf = format.indexOf('-');
+        year = format.substring(0, indexOf);
+        indexOf = format.indexOf('-', indexOf + 1);
+        month = format.substring(year.length() + 1, indexOf);
+        day = format.substring(indexOf + 1);
+
+        PostIndexData postIndexData = new PostIndexData();
+        postIndexData.setDisabled((byte) 0);
+        postIndexData.setPostId(postData.getId());
+        postIndexData.setYear(Integer.parseInt(year));
+        postIndexData.setMonth(Integer.parseInt(month));
+        postIndexData.setDay(Integer.parseInt(day));
+        if (!this.postIndexRepository.save(postIndexData)) {
+            HttpUtils.response(response, JsonRes.getFailJsonRes(String.format("保存Post Index失败! ")));
+            return null;
+        }
+
+        return this.list();
+    }
+
+    @Override
+    public List<PostView> softDelete(List<Long> ids, HttpResponse response) {
+        if (!this.postIndexRepository.softRemove(ids)) {
+            HttpUtils.response(response, JsonRes.getFailJsonRes("删除Post Index失败！"));
+            return null;
+        }
+
+        return super.softDelete(ids, response);
     }
 
     @Override
