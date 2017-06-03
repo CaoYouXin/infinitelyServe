@@ -4,6 +4,7 @@ import java.util.Date;
 
 public class UserView {
 
+    private Long id;
     private String userName;
     private String phone;
     private Date createTime;
@@ -91,4 +92,11 @@ public class UserView {
                 '}';
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }
