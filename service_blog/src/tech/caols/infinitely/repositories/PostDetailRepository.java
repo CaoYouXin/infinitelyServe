@@ -267,6 +267,7 @@ public class PostDetailRepository extends Repository<PostDetailData, Long> {
                         " a.platform PostDetailData.platform, a.resourceLevelId PostDetailData.resourceLevelId," +
                         " c.name PostDetailData.resourceLevelName From PostData a, CategoryData b, LevelData c" +
                         " Where a.categoryId = b.id and a.resourceLevelId = c.id and a.update %s ?" +
+                        " and a.type = 'Article'" +
                         " Order By a.update %s Limit 1", greater ? ">" : "<", greater ? "asc" : "desc"
                 ),
                 new String[]{"tech.caols.infinitely.datamodels."}, date);
@@ -292,7 +293,8 @@ public class PostDetailRepository extends Repository<PostDetailData, Long> {
                         " a.brief PostDetailData.brief, a.like PostDetailData.like," +
                         " a.platform PostDetailData.platform, a.resourceLevelId PostDetailData.resourceLevelId," +
                         " c.name PostDetailData.resourceLevelName From PostData a, CategoryData b, LevelData c" +
-                        " Where a.categoryId = b.id and a.resourceLevelId = c.id Order By a.like desc Limit %d", count
+                        " Where a.categoryId = b.id and a.resourceLevelId = c.id and a.type = 'Article'" +
+                        " Order By a.like desc Limit %d", count
                 ),
                 new String[]{"tech.caols.infinitely.datamodels."});
     }
