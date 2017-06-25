@@ -20,4 +20,14 @@ public class PostIndexRepository extends Repository<PostIndexData, Long> {
                 new String[]{"tech.caols.infinitely.datamodels."});
     }
 
+    public PostIndexData findByPostId(Long postId) {
+        List<PostIndexData> postIndexDataList = super.query("Select a From PostIndexData a Where a.postId = ?",
+                new String[]{"tech.caols.infinitely.datamodels."}, postId);
+
+        if (postIndexDataList.isEmpty()) {
+            return null;
+        }
+        return postIndexDataList.get(0);
+    }
+
 }

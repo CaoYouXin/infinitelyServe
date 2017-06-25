@@ -66,7 +66,10 @@ public class PostServiceImpl extends BaseServiceImpl<PostData, PostView> impleme
         month = format.substring(year.length() + 1, indexOf);
         day = format.substring(indexOf + 1);
 
-        PostIndexData postIndexData = new PostIndexData();
+        PostIndexData postIndexData = this.postIndexRepository.findByPostId(postData.getId());
+        if (null == postIndexData) {
+            postIndexData = new PostIndexData();
+        }
         postIndexData.setDisabled((byte) 0);
         postIndexData.setPostId(postData.getId());
         postIndexData.setYear(Integer.parseInt(year));
