@@ -1,0 +1,4 @@
+{
+  "port": 9001,
+  "docRoot": "/var/serve/html/user_management/"
+}

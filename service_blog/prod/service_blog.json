@@ -1,0 +1,4 @@
+{
+  "port": 9003,
+  "docRoot": "/var/serve/html/blog_management/"
+}

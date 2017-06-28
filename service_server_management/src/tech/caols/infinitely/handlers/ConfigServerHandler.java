@@ -31,8 +31,10 @@ public class ConfigServerHandler implements HttpRequestHandler {
             return;
         }
 
-        String serverFileName = bodyAsObject.getServerName().substring(0, bodyAsObject.getServerName().indexOf("_jar"));
-        File file = new File(this.serverRoot + bodyAsObject.getServerName(), serverFileName + ".json");
+        String serverName = bodyAsObject.getServerName();
+        int lastIndexOfJar = serverName.lastIndexOf("_jar");
+        File file = new File(this.serverRoot + serverName,
+                (-1 != lastIndexOfJar ? serverName.substring(0, lastIndexOfJar) : serverName)+ ".json");
         if (!file.exists()) {
             if (!file.createNewFile()) {
                 HttpUtils.response(httpResponse, JsonRes.getFailJsonRes("can not create config file"));

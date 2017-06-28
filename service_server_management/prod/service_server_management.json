@@ -1,0 +1,8 @@
+{
+  "server": {
+    "port": 9000,
+    "docRoot": "/var/serve/html/server_management/"
+  },
+  "serverRoot": "/var/serve/java/",
+  "uploadRoot": "/var/serve/upload/java/"
+}

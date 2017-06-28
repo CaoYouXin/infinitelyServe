@@ -34,8 +34,9 @@ public class GetServerConfigHandler implements HttpRequestHandler {
             throw new RuntimeException("request format error, need do and at");
         }
 
-        String serverFileName = serverName.substring(0, serverName.lastIndexOf("_jar"));
-        File file = new File(this.serverRoot + serverName, serverFileName + ".json");
+        int lastIndexOfJar = serverName.lastIndexOf("_jar");
+        File file = new File(this.serverRoot + serverName,
+                (-1 != lastIndexOfJar ? serverName.substring(0, lastIndexOfJar) : serverName) + ".json");
 
         HttpUtils.response(httpContext, SimpleUtils.getFileWithUtil(file));
     }

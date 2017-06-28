@@ -36,8 +36,8 @@ public class ServerManipulationHandler implements HttpRequestHandler {
             throw new RuntimeException("request format error, need do and at");
         }
 
-        String serverFileName = at.substring(0, at.lastIndexOf("_jar"));
-        String target = this.serverRoot + at + "/" + serverFileName + ".jar";
+        int lastIndexOfJar = at.lastIndexOf("_jar");
+        String target = this.serverRoot + at + "/" + (-1 != lastIndexOfJar ? at.substring(0, lastIndexOfJar) : at) + ".jar";
         switch (aDo) {
             case "start":
                 SimpleUtils.run("nohup java -jar " + target + " start &", false);
