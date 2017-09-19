@@ -84,7 +84,7 @@ public class HttpUtils {
         return ret;
     }
 
-    public static void putParameter(String str, Map<String, String> map, String delimiter) {
+    private static void putParameter(String str, Map<String, String> map, String delimiter) {
         int indexOf = str.indexOf(delimiter), indexOfEqual = str.indexOf('=');
         if (-1 != indexOf) {
             if (-1 != indexOfEqual) {
@@ -100,7 +100,7 @@ public class HttpUtils {
         }
     }
 
-    public static List<String> getListParameter(String param) {
+    public static List<String> getParameterList(String param) {
         List<String> ret = new ArrayList<>();
         int indexOf = param.indexOf(',');
         putParameter(param, ret, indexOf);
@@ -154,7 +154,7 @@ public class HttpUtils {
             return OBJECT_MAPPER.readValue(bodyAsString, clazz);
         } catch (IOException e) {
             logger.catching(e);
-            return null;
+            throw new RuntimeException(e);
         }
     }
 
@@ -171,11 +171,7 @@ public class HttpUtils {
         httpResponse.setStatusCode(HttpStatus.SC_OK);
         try {
             String retString = OBJECT_MAPPER.writeValueAsString(jsonRes);
-            logger.info("returning --->" + retString);
-            httpResponse.setEntity(new StringEntity(
-                    retString,
-                    ContentType.APPLICATION_JSON
-            ));
+            response(httpResponse, retString);
         } catch (JsonProcessingException e) {
             logger.catching(e);
             httpResponse.setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
